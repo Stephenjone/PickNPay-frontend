@@ -1,0 +1,118 @@
+/* General table styling */
+.admin-orders {
+  padding: 20px;
+}
+
+.admin-orders h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 auto;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+/* Buttons */
+.button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.button-accept {
+  background-color: #007bff;
+  color: white;
+}
+
+.button-accepted {
+  background-color: #6c757d;
+  color: white;
+  cursor: not-allowed;
+}
+
+.button-yes {
+  background-color: #28a745;
+  color: white;
+}
+
+.button-no {
+  background-color: #dc3545;
+  color: white;
+}
+
+.button-delete {
+  background-color: #e83e8c;
+  color: white;
+}
+
+/* Status labels */
+.status-yes {
+  color: green;
+  font-weight: bold;
+}
+
+.status-no {
+  color: red;
+  font-weight: bold;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .admin-table,
+  .admin-table thead,
+  .admin-table tbody,
+  .admin-table th,
+  .admin-table td,
+  .admin-table tr {
+    display: block;
+    width: 100%;
+  }
+
+  .admin-table thead {
+    display: none; /* hide table header */
+  }
+
+  .admin-table tr {
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 12px;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  .admin-table td {
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 14px;
+  }
+
+  .admin-table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    flex: 1;
+    color: #333;
+  }
+
+  .admin-table td:last-child {
+    border-bottom: none;
+  }
+}

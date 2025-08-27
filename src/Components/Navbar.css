@@ -1,0 +1,348 @@
+/* =========================
+   Navbar Base Styles
+========================= */
+.navbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(
+    90deg,
+    rgba(187, 38, 26, 1) 0%,
+    rgba(215, 117, 44, 1) 35%,
+    rgba(245, 207, 70, 1) 100%
+  );
+  padding: 12px 20px;
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  position: fixed;
+  top: 0;
+  z-index: 100;
+  font-family: "Patrick Hand", cursive;
+  flex-wrap: nowrap;
+}
+
+/* Container for logo, buttons, user info */
+.nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 20px;
+}
+
+/* Logo */
+.logo {
+  font-size: 34px;
+  font-weight: 400;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* Buttons container */
+.nav-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Buttons */
+.nav-btn {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  padding: 8px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  left:0;
+  right:300px;
+}
+
+.nav-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #111;
+}
+
+/* User Info (desktop) */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+  font-size: 22px;
+  white-space: nowrap;
+}
+
+.user-info span {
+  font-weight: 500;
+}
+
+/* Logout Button */
+.logout-btn {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: #111;
+}
+
+/* Mobile User Icon / Toggle */
+.mobile-user-icon {
+  display: none;
+  font-size: 26px;
+  color: #fff;
+  cursor: pointer;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.mobile-username {
+  display: none;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+/* Mobile Dropdown Menu */
+.mobile-menu {
+  display: none;
+  flex-direction: column;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.92);
+  padding: 12px 0;
+  border-radius: 8px;
+  margin-top: 10px;
+  transition: max-height 0.3s ease;
+}
+
+.mobile-menu.show {
+  display: flex;
+}
+
+.mobile-menu .nav-btn,
+.mobile-menu .logout-btn {
+  width: 90%;
+  margin: 6px auto;
+  text-align: center;
+  font-size: 15px;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+/* =========================
+   Responsive Breakpoints
+========================= */
+
+/* Tablets (iPad, Surface, Galaxy Fold, etc.) */
+@media (max-width: 992px) {
+  .logo {
+    font-size: 30px;
+  }
+
+  .nav-btn {
+    font-size: 15px;
+    padding: 6px 12px;
+  }
+
+  .logout-btn {
+    font-size: 15px;
+    padding: 6px 10px;
+  }
+  
+  .mobile-username {
+  font-size: 25px;
+}
+
+.mobile-user-icon
+{
+  font-size: 40px;
+}
+}
+
+
+/* Mobiles (iPhone XR/12/14 Pro, Pixel, Galaxy phones) */
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none;
+  }
+
+  .navbar {
+    padding: 10px 15px;
+  }
+
+  .logo {
+     font-size: 40px;
+  }
+
+  .mobile-user-icon {
+    display: flex;
+    font-size: 40px;
+  }
+
+.mobile-username {
+  font-size: 35px;
+}
+}
+
+/* Small Mobiles (iPhone SE, compact Androids <500px) */
+@media (max-width: 500px) {
+  .navbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Hide buttons in header but keep them inside mobile-menu */
+  .nav-buttons,
+  .user-info {
+    display: none;
+  }
+
+  .logo {
+     font-size: 35px;
+  }
+
+  .mobile-username {
+    display: inline;
+  }
+
+  .mobile-username {
+  font-size: 25px;
+}
+.mobile-user-icon
+{
+  font-size: 40px;
+}
+}
+
+/* Ultra Small (SE portrait, <375px) */
+@media (max-width: 375px) {
+  .logo {
+    font-size: 35px;
+  }
+
+  .nav-btn,
+  .logout-btn {
+    font-size: 13px;
+    padding: 6px 8px;
+  }
+
+  .mobile-username {
+  font-size: 25px;
+}
+.mobile-user-icon
+{
+  font-size: 40px;
+}
+}
+
+/* =========================
+   Add Item Modal Styles
+========================= */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 500px;
+}
+
+.add-item-form input,
+.add-item-form select {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.file-upload {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.custom-file-upload {
+  background-color: #007bff;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.file-upload input[type="file"] {
+  display: none;
+}
+
+.form-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.submit-btn,
+.cancel-btn {
+  padding: 10px 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left:5px;
+}
+
+.submit-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.cancel-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Error Message */
+.error {
+  color: red;
+  font-size: 14px;
+  margin: 8px 0;
+}
+
+/* Optional glass style */
+.glass-card {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}

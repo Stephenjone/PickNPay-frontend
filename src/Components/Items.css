@@ -1,0 +1,303 @@
+.items-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto; 
+  padding: 20px;
+  font-family: "Playpen Sans", cursive;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.admin-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 25px;
+  justify-content: flex-start;
+}
+
+.admin-buttons button {
+  padding: 10px 18px;
+  background: #1c352d;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background 0.25s ease, transform 0.2s ease;
+}
+
+.admin-buttons button:hover {
+  background: #145a32;
+  transform: translateY(-2px);
+}
+
+/* ==========================
+   Item Form (Popup Modal)
+========================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 15, 15, 0.45);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 30px;
+  border-radius: 14px;
+  width: 90%;
+  max-width: 480px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.25);
+  color: #fff;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* Add item form inside modal */
+.add-item-form label {
+  font-size: 14px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.add-item-form input,
+.add-item-form select {
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 15px;
+}
+
+.add-item-form input::placeholder {
+  color: #ddd;
+}
+
+.add-item-form button {
+  margin-top: 12px;
+  background: #4caf50;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 600;
+  font-size: 15px;
+  transition: background 0.3s ease;
+}
+
+.add-item-form button:hover:not([disabled]) {
+  background: #45a049;
+}
+
+.add-item-form button[disabled] {
+  background: #a9d6b5;
+  cursor: not-allowed;
+}
+
+/* ==========================
+   Status Messages
+========================== */
+.error-message {
+  color: #dc3545;
+  font-weight: 600;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.success-message {
+  color: #28a745;
+  font-weight: 600;
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* ==========================
+   Category Section
+========================== */
+.category-title {
+  margin-top: 40px;
+  font-size: 22px;
+  font-weight: 600;
+  text-align: center;
+  color: #333;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 8px;
+}
+
+.items-grid {
+  display: flex;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  margin-top: 25px;
+  justify-content: center;
+  margin-top: 25px;
+}
+
+/* ==========================
+   Item Card
+========================== */
+.item-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
+  transition: transform 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.item-card:hover {
+  transform: translateY(-4px);
+}
+
+.item-card img {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.item-card h3 {
+  font-size: 18px;
+  margin-bottom: 6px;
+  color: #222;
+  font-weight: 600;
+}
+
+.item-card p {
+  margin: 4px 0 12px;
+  color: #555;
+  font-size: 14px;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;       
+  justify-content: center;   
+  gap: 12px;
+  margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.08); 
+  padding: 6px 12px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
+}
+
+/* Base button style */
+.quantity-controls button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  color: #fff;
+}
+
+/* Decrement (-) button */
+.quantity-controls button:first-child {
+  background: linear-gradient(145deg, #d9534f, #c9302c); /* red */
+}
+
+.quantity-controls button:first-child:hover {
+  transform: scale(1.1);
+  background: linear-gradient(145deg, #c9302c, #a82824);
+}
+
+/* Increment (+) button */
+.quantity-controls button:last-child {
+  background: linear-gradient(145deg, #5cb85c, #4cae4c); /* green */
+}
+
+.quantity-controls button:last-child:hover {
+  transform: scale(1.1);
+  background: linear-gradient(145deg, #4cae4c, #3d8b3d);
+}
+
+.quantity-controls span {
+  min-width: 20px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+}
+
+/* ==========================
+   Action Buttons
+========================== */
+.item-card button {
+  padding: 9px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  background: #D7752C;
+  color: #fff;
+  font-weight: 500;
+  transition: background 0.25s ease, transform 0.2s ease;
+}
+
+.item-card button:hover {
+  background: #F5CF46;
+  transform: translateY(-2px);
+}
+
+.item-card .delete-btn {
+  margin-top: 10px;
+  background: #dc3545;
+}
+
+.item-card .delete-btn:hover {
+  background: #b02a37;
+}
+
+/* ================================
+   MOBILE: Stack item cards vertically
+================================= */
+@media (max-width: 768px) {
+  .items-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 25px;
+    justify-content: center;
+  }
+}

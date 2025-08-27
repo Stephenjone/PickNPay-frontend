@@ -1,0 +1,97 @@
+.my-orders-container {
+  padding: 90px 20px 40px; 
+  background: linear-gradient(135deg, #f9f9f9, #eef2f3);
+  font-family: 'Segoe UI', sans-serif;
+  margin-top: 10px;
+  position: relative;
+  width:100vw;
+}
+
+  .myorders-navbar{
+    width:100vw;
+  }
+
+
+.my-orders-title{
+  text-align: center; 
+  position: fixed;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  background: #f9f9f9; 
+  border-radius: 8px;
+}
+
+.no-orders {
+  text-align: center; 
+  color: #888;
+  font-size: 1.1rem;
+}
+
+.order-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  /* Full width on page */
+  width: 600px; /* Adjust to how wide you want them */
+  max-width: 100%;
+}
+
+.order-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+}
+
+.order-id {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #34495e;
+  margin-bottom: 8px;
+}
+
+.order-total {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #1abc9c;
+  margin-bottom: 8px;
+}
+
+.order-status {
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+}
+
+.order-status.pending {
+  color: #f39c12;
+  font-weight: 600;
+}
+
+.order-status.accepted {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.order-status.rejected {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.items-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.items-list li {
+  font-size: 0.95rem;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.items-list li:last-child {
+  border-bottom: none;
+}
