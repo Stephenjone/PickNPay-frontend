@@ -117,11 +117,19 @@ const Cart = () => {
       setError('User not logged in');
       return;
     }
-    let email = '';
+
+    let email = '', username = '';
     try {
-      email = JSON.parse(storedUser).email;
+      const user = JSON.parse(storedUser);
+      email = user.email;
+      username = user.username || user.name || ''; // adjust based on your stored structure
     } catch {
       setError('Invalid user data');
+      return;
+    }
+
+    if (!username || !email) {
+      setError('Incomplete user info');
       return;
     }
 
@@ -130,28 +138,38 @@ const Cart = () => {
       return;
     }
 
-    const orderData = { email, items: cartItems, totalAmount };
+    const orderData = {
+      username,
+      email,
+      items: cartItems,
+    };
 
     try {
-      const res = await fetch(`${API_BASE}/orders/place`, {
+      const res = await fetch(`${API_BASE}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData),
       });
 
+      const text = await res.text();
+      console.log('📦 Order API response:', res.status, text);
+
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to place order');
+        let errorMessage = 'Failed to place order';
+        try {
+          const errorData = JSON.parse(text);
+          errorMessage = errorData.message || errorMessage;
+        } catch (_) {}
+        throw new Error(errorMessage);
       }
 
-      const data = await res.json();
-
-      setOrderId(data.orderId);
+      const data = JSON.parse(text);
+      setOrderId(data.order._id);
       setShowOrderPopup(true);
       setTokenNumber(null);
       setOrderRejected(false);
 
-      pollOrderStatus(data.orderId);
+      pollOrderStatus(data.order._id);
     } catch (err) {
       setError(err.message);
     }
@@ -160,11 +178,11 @@ const Cart = () => {
   const pollOrderStatus = (orderId) => {
     pollingInterval.current = setInterval(async () => {
       try {
-        const res = await fetch(`${API_BASE}/orders/status/${orderId}`);
+        const res = await fetch(`${API_BASE}/orders/${orderId}`);
         if (!res.ok) throw new Error(`Status fetch failed (${res.status})`);
         const data = await res.json();
 
-        if (data.orderStatus === 'accepted') {
+        if (data.status === 'Accepted') {
           setTokenNumber(data.token);
           setOrderRejected(false);
           setShowOrderPopup(true);
@@ -175,7 +193,7 @@ const Cart = () => {
             setShowOrderPopup(false);
             navigate('/myorders');
           }, 3000);
-        } else if (data.orderStatus === 'rejected') {
+        } else if (data.status === 'Rejected') {
           setOrderRejected(true);
           setTokenNumber(null);
           clearInterval(pollingInterval.current);
@@ -196,7 +214,6 @@ const Cart = () => {
 
   return (
     <>
-      {/* ✅ Navbar */}
       <Navbar />
 
       <div className="cart-container">
@@ -257,14 +274,14 @@ const Cart = () => {
               <div className="order-popup">
                 {tokenNumber && !orderRejected ? (
                   <>
-                    <p style={{ fontSize: '1.4rem', color: 'green' }}>✅ Order Accepted!</p>
-                    <p>Your token number is: <b>{tokenNumber}</b></p>
-                    <p>Please collect your order from the counter in 10 minutes.</p>
+                    <p style={{ color: 'green', fontSize: '1.2rem' }}>✅ Hurray! Your order is accepted!</p>
+                    <p>Your token: <strong>{tokenNumber}</strong></p>
+                    <p>Please collect it from the counter in 10 minutes.</p>
                   </>
                 ) : orderRejected ? (
                   <p style={{ color: 'red' }}>❌ Restaurant cannot accept your order now.</p>
                 ) : (
-                  <p>⌛ Waiting for the restaurant to accept your order...</p>
+                  <p>Waiting for the restaurant to accept your order...</p>
                 )}
                 <button onClick={closePopup}>Close</button>
               </div>

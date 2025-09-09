@@ -1,31 +1,34 @@
-// src/components/Login.js
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from './AuthContext';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import './Login.css';
-
-const API_BASE = "https://picknpay-backend-3.onrender.com"; // 🔑 Render backend URL
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
+    setLoading(true);
 
     if (!email || !password) {
-      setError("Please enter both email and password");
+      setError("Please fill all the fields!");
+      setLoading(false);
       return;
     }
 
     try {
-      const res = await fetch(`${API_BASE}/api/auth/login`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({ email, password }),
       });
 
@@ -33,17 +36,23 @@ const Login = () => {
       try {
         data = await res.json();
       } catch {
-        throw new Error("Invalid response from server. Check backend.");
+        throw new Error("Server did not return valid JSON.");
       }
 
-      if (!res.ok) throw new Error(data.error || "Login failed");
+      if (!res.ok) {
+        throw new Error(data.error || "Login failed.");
+      }
 
-      // ✅ Save user to AuthContext + localStorage
-      login(data.email, data.name);
-
-      navigate("/dashboard");
+      setSuccess(data.message);
+      setEmail("");
+      setPassword("");
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setTimeout(() => navigate("/dashboard"), 1000);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Unexpected error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -53,14 +62,33 @@ const Login = () => {
         <div className="logo-container">
           <img src="/Images/Catalyst.png" alt="Logo" className="logo-img" />
         </div>
+
+        {/* Login Form */}
         <form className="login-form" onSubmit={handleLogin}>
           <h2>Login</h2>
-          <input type="email" placeholder="Enter your Email"
-            value={email} onChange={(e) => setEmail(e.target.value)} />
-          <input type="password" placeholder="Enter your Password"
-            value={password} onChange={(e) => setPassword(e.target.value)} />
-          <button type="submit">Login</button>
+          <input
+            type="email"
+            placeholder="Enter your Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="Enter your Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
+
           {error && <p className="error">{error}</p>}
+          {success && <p className="success">{success}</p>}
+
+          <div className="register-option">
+            <span className="not-registered-yet">Not registered yet? </span>
+            <Link to="/register" className="register">Register here</Link>
+          </div>
         </form>
       </div>
     </div>
