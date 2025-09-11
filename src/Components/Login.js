@@ -1,6 +1,9 @@
+// src/pages/Login.js
+
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './Login.css';
+import { REACT_API_URL } from '../actionTypes/authActionTypes';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -24,7 +27,8 @@ const Login = () => {
     }
 
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
+      console.log("Using backend URL:", REACT_API_URL);
+      const res = await fetch(`${REACT_API_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -32,10 +36,14 @@ const Login = () => {
         body: JSON.stringify({ email, password }),
       });
 
+      // get raw response first
+      const text = await res.text();
+      console.log("Production raw response from server:", text);
+
       let data;
       try {
-        data = await res.json();
-      } catch {
+        data = JSON.parse(text);
+      } catch (err) {
         throw new Error("Server did not return valid JSON.");
       }
 
@@ -50,6 +58,7 @@ const Login = () => {
       localStorage.setItem("user", JSON.stringify(data.user));
       setTimeout(() => navigate("/dashboard"), 1000);
     } catch (err) {
+      console.error("Login error:", err);
       setError(err.message || "Unexpected error");
     } finally {
       setLoading(false);
@@ -63,7 +72,6 @@ const Login = () => {
           <img src="/Images/Catalyst.png" alt="Logo" className="logo-img" />
         </div>
 
-        {/* Login Form */}
         <form className="login-form" onSubmit={handleLogin}>
           <h2>Login</h2>
           <input

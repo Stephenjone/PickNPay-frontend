@@ -122,7 +122,7 @@ const Cart = () => {
     try {
       const user = JSON.parse(storedUser);
       email = user.email;
-      username = user.username || user.name || ''; // adjust based on your stored structure
+      username = user.username || user.name || '';
     } catch {
       setError('Invalid user data');
       return;
@@ -168,6 +168,14 @@ const Cart = () => {
       setShowOrderPopup(true);
       setTokenNumber(null);
       setOrderRejected(false);
+
+      // ✅ Clear cart after successful order
+      await fetch(`${API_BASE}/cart/${email}`, {
+        method: 'DELETE',
+      });
+
+      setCartItems([]);
+      localStorage.setItem('cartCount', 0);
 
       pollOrderStatus(data.order._id);
     } catch (err) {
