@@ -1,8 +1,10 @@
+// src/components/AdminOrders.js
 import React, { useEffect, useState } from "react";
 import "./AdminOrders.css";
 import Navbar from "./Navbar";
+import { REACT_API_URL } from "../actionTypes/authActionTypes";
 
-const API_BASE = "http://localhost:5000/api/orders";
+const API_BASE = `${REACT_API_URL}/api/orders`;
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -11,6 +13,7 @@ const AdminOrders = () => {
   const fetchOrders = async () => {
     try {
       const res = await fetch(API_BASE);
+      if (!res.ok) throw new Error(`Failed to fetch orders (${res.status})`);
       const data = await res.json();
       setOrders(data);
     } catch (err) {
@@ -26,6 +29,7 @@ const AdminOrders = () => {
   const handleAccept = async (orderId) => {
     try {
       const res = await fetch(`${API_BASE}/${orderId}/accept`, { method: "PUT" });
+      if (!res.ok) throw new Error("Failed to accept order");
       const json = await res.json();
       const updated = json.order;
       setOrders((prev) => prev.map((o) => (o._id === updated._id ? updated : o)));
@@ -38,6 +42,7 @@ const AdminOrders = () => {
   const handleReject = async (orderId) => {
     try {
       const res = await fetch(`${API_BASE}/${orderId}/reject`, { method: "PUT" });
+      if (!res.ok) throw new Error("Failed to reject order");
       const json = await res.json();
       const updated = json.order;
       setOrders((prev) => prev.map((o) => (o._id === updated._id ? updated : o)));
@@ -54,6 +59,7 @@ const AdminOrders = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isReceived: value }),
       });
+      if (!res.ok) throw new Error("Failed to update order received status");
       const json = await res.json();
       const updated = json.order;
       setOrders((prev) => prev.map((o) => (o._id === updated._id ? updated : o)));
@@ -65,7 +71,8 @@ const AdminOrders = () => {
   // Delete
   const handleDelete = async (id) => {
     try {
-      await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+      const res = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete order");
       fetchOrders();
     } catch (err) {
       console.error("Error deleting order:", err);
@@ -80,8 +87,9 @@ const AdminOrders = () => {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Username</th><th>Email</th><th>Date</th><th>Items</th><th>Order ID</th>
-              <th>Token</th><th>Status</th><th>Order Received</th><th>Action</th>
+              <th>Username</th><th>Email</th><th>Date</th><th>Items</th>
+              <th>Order ID</th><th>Token</th><th>Status</th>
+              <th>Order Received</th><th>Action</th>
             </tr>
           </thead>
           <tbody>

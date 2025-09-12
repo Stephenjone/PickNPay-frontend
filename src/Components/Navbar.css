@@ -155,7 +155,7 @@
 /* Tablets (iPad, Surface, Galaxy Fold, etc.) */
 @media (max-width: 992px) {
   .logo {
-    font-size: 30px;
+    font-size: 25px;
   }
 
   .nav-btn {
@@ -169,12 +169,12 @@
   }
   
   .mobile-username {
-  font-size: 25px;
+  font-size: 20px;
 }
 
 .mobile-user-icon
 {
-  font-size: 40px;
+  font-size: 35px;
 }
 }
 
