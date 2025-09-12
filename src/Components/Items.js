@@ -1,8 +1,9 @@
 // src/components/Items.js
 import React, { useState, useEffect, useCallback } from 'react';
 import './Items.css';
+import { REACT_API_URL } from "../actionTypes/authActionTypes";
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = `${REACT_API_URL}/api`;
 
 const Items = () => {
   const [userEmail, setUserEmail] = useState('');
@@ -27,7 +28,10 @@ const Items = () => {
 
   /** Wrapper for fetch calls */
   const apiRequest = async (endpoint, options = {}) => {
-    const res = await fetch(`${API_BASE}${endpoint}`, options);
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      credentials: "include" // important if you’re using cookies/JWT
+    });
     let data = null;
     try {
       data = await res.json();
@@ -48,7 +52,6 @@ const Items = () => {
     try {
       const data = await apiRequest('/items');
       const arr = extractArray(data, ['items']);
-      // ensure new items appear at the bottom
       setItems(arr);
     } catch (err) {
       setError(err.message || 'Could not load items');
