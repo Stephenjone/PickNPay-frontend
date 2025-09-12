@@ -1,9 +1,13 @@
+// src/components/Cart.js
 import React, { useState, useEffect, useRef } from 'react';
 import './Cart.css';
 import Navbar from './Navbar';
 import { useNavigate } from 'react-router';
 
-const API_BASE = 'http://localhost:5000/api';
+// ✅ Import API base URL from your actionTypes
+import { REACT_API_URL } from '../actionTypes/authActionTypes';
+
+const API_BASE = `${REACT_API_URL}/api`;
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -241,7 +245,7 @@ const Cart = () => {
                   <img
                     src={
                       image
-                        ? `${API_BASE.replace('/api', '')}/uploads/${image}`
+                        ? `${REACT_API_URL}/uploads/${image}`
                         : 'https://via.placeholder.com/80'
                     }
                     alt={name}
