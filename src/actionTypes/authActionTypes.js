@@ -6,4 +6,4 @@ const isLocalhost =
 
 export const REACT_API_URL = isLocalhost
   ? "http://localhost:5000"
-  : "https://picknpay-backend-latest.onrender.com";
+  : "https://picknpay-backend-5.onrender.com";
