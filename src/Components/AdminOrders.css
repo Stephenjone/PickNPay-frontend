@@ -18,6 +18,12 @@
   overflow: hidden;
 }
 
+.highlight-row {
+  background-color: #fff9c4 !important; /* Light yellow */
+  transition: background-color 0.3s ease;
+}
+
+
 .admin-table th,
 .admin-table td {
   padding: 12px;

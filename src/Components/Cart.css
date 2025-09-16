@@ -198,6 +198,23 @@
   color: #444;
 }
 
+/* Spinner for waiting state */
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #4caf50;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 15px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
 .order-popup button {
   background: #007bff;
   color: white;
@@ -221,6 +238,55 @@
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+/* ==========================
+   Success Tick Animation
+========================== */
+.success-checkmark {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 4px solid #4caf50;
+  position: relative;
+  box-sizing: content-box;
+  margin: 0 auto 18px auto;
+  animation: scaleIn 0.4s ease forwards;
+}
+
+.success-checkmark::after {
+  content: "";
+  position: absolute;
+  left: 22px;
+  top: 38px;
+  width: 12px;
+  height: 25px;
+  border-right: 4px solid #4caf50;
+  border-bottom: 4px solid #4caf50;
+  transform: rotate(45deg) scale(0);
+  transform-origin: center;
+  animation: drawTick 0.4s ease 0.4s forwards;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes drawTick {
+  from {
+    transform: rotate(45deg) scale(0);
+  }
+  to {
+    transform: rotate(45deg) scale(1);
   }
 }
 
@@ -286,7 +352,7 @@
   .order-popup {
     padding: 20px;
   }
-  
+
   /* Stack buttons vertically with spacing */
   .placeorder-btn,
   .back-btn {
@@ -294,7 +360,7 @@
     width: 100%;
     margin: 8px 0;
   }
-  
+
   /* Make quantity controls wrap on small screens */
   .quantity-controls {
     flex-wrap: wrap;

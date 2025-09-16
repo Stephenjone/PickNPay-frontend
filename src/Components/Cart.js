@@ -3,8 +3,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import './Cart.css';
 import Navbar from './Navbar';
 import { useNavigate } from 'react-router';
-
-// ✅ Import API base URL from your actionTypes
 import { REACT_API_URL } from '../actionTypes/authActionTypes';
 
 const API_BASE = `${REACT_API_URL}/api`;
@@ -156,8 +154,6 @@ const Cart = () => {
       });
 
       const text = await res.text();
-      console.log('📦 Order API response:', res.status, text);
-
       if (!res.ok) {
         let errorMessage = 'Failed to place order';
         try {
@@ -173,7 +169,7 @@ const Cart = () => {
       setTokenNumber(null);
       setOrderRejected(false);
 
-      // ✅ Clear cart after successful order
+      // ✅ Clear cart
       await fetch(`${API_BASE}/cart/${email}`, {
         method: 'DELETE',
       });
@@ -281,24 +277,32 @@ const Cart = () => {
             </>
           )}
 
-          {showOrderPopup && (
-            <div className="order-popup-overlay">
-              <div className="order-popup">
-                {tokenNumber && !orderRejected ? (
-                  <>
-                    <p style={{ color: 'green', fontSize: '1.2rem' }}>✅ Hurray! Your order is accepted!</p>
-                    <p>Your token: <strong>{tokenNumber}</strong></p>
-                    <p>Please collect it from the counter in 10 minutes.</p>
-                  </>
-                ) : orderRejected ? (
-                  <p style={{ color: 'red' }}>❌ Restaurant cannot accept your order now.</p>
-                ) : (
-                  <p>Waiting for the restaurant to accept your order...</p>
-                )}
-                <button onClick={closePopup}>Close</button>
-              </div>
-            </div>
-          )}
+   {showOrderPopup && (
+  <div className="order-popup-overlay">
+    <div className="order-popup">
+      {tokenNumber && !orderRejected ? (
+        <>
+          {/* ✅ Green Tick Animation */}
+          <div className="success-checkmark"></div>
+          
+          <p className="order-accepted-text">✅ Order Accepted!</p>
+          <p>Your token: <strong>{tokenNumber}</strong></p>
+          <p>Please collect it from the counter in 10 minutes.</p>
+        </>
+      ) : orderRejected ? (
+        <p style={{ color: 'red' }}>❌ Restaurant cannot accept your order now.</p>
+      ) : (
+        <>
+          <div className="loading-spinner"></div>
+          <p>Waiting for the restaurant to accept your order...</p>
+        </>
+      )}
+      <button onClick={closePopup}>Close</button>
+    </div>
+  </div>
+)}
+
+
         </div>
       </div>
     </>
