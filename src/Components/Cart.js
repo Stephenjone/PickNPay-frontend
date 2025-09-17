@@ -1,4 +1,3 @@
-// src/components/Cart.js
 import React, { useState, useEffect, useRef } from 'react';
 import './Cart.css';
 import Navbar from './Navbar';
@@ -12,20 +11,21 @@ const Cart = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [showOrderPopup, setShowOrderPopup] = useState(false);
-  const [tokenNumber, setTokenNumber] = useState(null);
   const [orderId, setOrderId] = useState(null);
+  const [tokenNumber, setTokenNumber] = useState(null);
   const [orderRejected, setOrderRejected] = useState(false);
-
   const navigate = useNavigate();
   const pollingInterval = useRef(null);
 
   useEffect(() => {
+    // Load user data from localStorage
     const storedUser = localStorage.getItem('user');
     if (!storedUser) {
       setError('User not logged in');
       setLoading(false);
       return;
     }
+
     try {
       const parsed = JSON.parse(storedUser);
       if (!parsed.email) throw new Error('Email missing in user data');
@@ -34,7 +34,8 @@ const Cart = () => {
       setError('Invalid user data');
       setLoading(false);
     }
-    return () => clearInterval(pollingInterval.current);
+
+    return () => clearInterval(pollingInterval.current); // Cleanup on component unmount
   }, []);
 
   useEffect(() => {
@@ -62,55 +63,37 @@ const Cart = () => {
     }
   };
 
-  const updateQuantity = async (itemId, newQuantity) => {
-    if (newQuantity < 1) return;
-    try {
-      const storedUser = localStorage.getItem('user');
-      if (!storedUser) return;
-      const email = JSON.parse(storedUser).email;
-
-      const res = await fetch(`${API_BASE}/cart/update`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, itemId, quantity: newQuantity }),
-      });
-
-      if (!res.ok) throw new Error('Failed to update quantity');
-
-      setCartItems(prev =>
-        prev.map(item =>
-          item._id === itemId ? { ...item, quantity: newQuantity } : item
-        )
-      );
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleRemoveItem = async (itemId) => {
-    try {
-      const storedUser = localStorage.getItem('user');
-      if (!storedUser) return;
-      const email = JSON.parse(storedUser).email;
-
-      const res = await fetch(`${API_BASE}/cart/update`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, itemId, quantity: 0 }),
-      });
-
-      if (!res.ok) throw new Error('Failed to remove item');
-
-      setCartItems(cartItems.filter(item => item._id !== itemId));
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
   const totalAmount = cartItems.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0
   );
+
+  // Handle item removal from cart
+  const handleRemoveItem = async (itemId) => {
+    // Remove item from the cart in the UI
+    const updatedCart = cartItems.filter(item => item._id !== itemId);
+    setCartItems(updatedCart);
+
+    // Update the cart in the backend
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) {
+      setError('User not logged in');
+      return;
+    }
+
+    const parsed = JSON.parse(storedUser);
+    const email = parsed.email;
+
+    try {
+      await fetch(`${API_BASE}/cart/${email}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemId }),
+      });
+    } catch (err) {
+      setError('Failed to remove item from the cart');
+    }
+  };
 
   const handlePlaceOrder = async () => {
     setError('');
@@ -165,18 +148,20 @@ const Cart = () => {
 
       const data = JSON.parse(text);
       setOrderId(data.order._id);
-      setShowOrderPopup(true);
       setTokenNumber(null);
       setOrderRejected(false);
+      setShowOrderPopup(true);
 
-      // ✅ Clear cart
-      await fetch(`${API_BASE}/cart/${email}`, {
-        method: 'DELETE',
-      });
+      // Clear cart
+      const storedUser = localStorage.getItem('user');
+      const email = JSON.parse(storedUser).email;
+
+      await fetch(`${API_BASE}/cart/${email}`, { method: 'DELETE' });
 
       setCartItems([]);
       localStorage.setItem('cartCount', 0);
 
+      // Poll order status
       pollOrderStatus(data.order._id);
     } catch (err) {
       setError(err.message);
@@ -252,17 +237,6 @@ const Cart = () => {
                     <p>
                       ₹{price.toFixed(2)} × {quantity} = ₹{(price * quantity).toFixed(2)}
                     </p>
-
-                    <div className="quantity-controls">
-                      <button onClick={() => updateQuantity(_id, quantity - 1)} disabled={quantity <= 1}>
-                        –
-                      </button>
-                      <span>{quantity}</span>
-                      <button onClick={() => updateQuantity(_id, quantity + 1)}>
-                        +
-                      </button>
-                    </div>
-
                     <button onClick={() => handleRemoveItem(_id)} className="remove-btn">
                       Remove
                     </button>
@@ -272,37 +246,34 @@ const Cart = () => {
 
               <h3>Total: ₹{totalAmount.toFixed(2)}</h3>
 
-              <button className="placeorder-btn" onClick={handlePlaceOrder}>Place Order</button>
-              <button className="back-btn" onClick={() => navigate('/dashboard')}>Back</button>
+              <button className="placeorder-btn" onClick={handlePlaceOrder}>
+                Place Order
+              </button>
             </>
           )}
 
-   {showOrderPopup && (
-  <div className="order-popup-overlay">
-    <div className="order-popup">
-      {tokenNumber && !orderRejected ? (
-        <>
-          {/* ✅ Green Tick Animation */}
-          <div className="success-checkmark"></div>
-          
-          <p className="order-accepted-text">✅ Order Accepted!</p>
-          <p>Your token: <strong>{tokenNumber}</strong></p>
-          <p>Please collect it from the counter in 10 minutes.</p>
-        </>
-      ) : orderRejected ? (
-        <p style={{ color: 'red' }}>❌ Restaurant cannot accept your order now.</p>
-      ) : (
-        <>
-          <div className="loading-spinner"></div>
-          <p>Waiting for the restaurant to accept your order...</p>
-        </>
-      )}
-      <button onClick={closePopup}>Close</button>
-    </div>
-  </div>
-)}
-
-
+          {showOrderPopup && (
+            <div className="order-popup-overlay">
+              <div className="order-popup">
+                {tokenNumber && !orderRejected ? (
+                  <>
+                    <div className="success-checkmark"></div>
+                    <p className="order-accepted-text">✅ Order Accepted!</p>
+                    <p>Your token: <strong>{tokenNumber}</strong></p>
+                    <p>Please collect it from the counter in 10 minutes.</p>
+                  </>
+                ) : orderRejected ? (
+                  <p style={{ color: 'red' }}>❌ Restaurant cannot accept your order now.</p>
+                ) : (
+                  <>
+                    <div className="loading-spinner"></div>
+                    <p>Waiting for the restaurant to accept your order...</p>
+                  </>
+                )}
+                <button onClick={closePopup}>Close</button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </>

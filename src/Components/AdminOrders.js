@@ -1,174 +1,131 @@
 import React, { useEffect, useState } from "react";
 import "./AdminOrders.css";
 import Navbar from "./Navbar";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { REACT_API_URL } from "../actionTypes/authActionTypes";
 
-const API_BASE = `${process.env.REACT_APP_API_URL}/api/orders`;
+const API_BASE = `${REACT_API_URL}/api/orders`;
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
-  const [highlightedId, setHighlightedId] = useState(null);
+  const [error, setError] = useState('');
 
+  // Fetch orders
   const fetchOrders = async () => {
     try {
       const res = await fetch(API_BASE);
+      if (!res.ok) throw new Error(`Failed to fetch orders (${res.status})`);
       const data = await res.json();
       setOrders(data);
     } catch (err) {
-      console.error("[AdminOrders] Error fetching orders:", err);
+      console.error("Error fetching orders:", err);
+      setError("Failed to load orders");
     }
-  };
-
-  const playSound = () => {
-    const audio = new Audio("/ding.mp3");
-    audio.play().catch((err) => console.warn("[AdminOrders] Sound play error:", err));
   };
 
   useEffect(() => {
     fetchOrders();
-
-    // Initialize SSE connection
-    const eventSource = new EventSource(`${process.env.REACT_APP_API_URL}/api/orders/stream`);
-    console.log("SSE Connection Established");
-
-    eventSource.onopen = () => {
-      console.log("[AdminOrders] SSE connection opened");
-    };
-
-    eventSource.onmessage = (event) => {
-      try {
-        const order = JSON.parse(event.data);
-        console.log("[AdminOrders] New order received via SSE:", order);
-
-        toast.info(`📥 New order from ${order.username}`, {
-          position: "top-right",
-          autoClose: 3000,
-        });
-
-        playSound();
-        setOrders((prev) => [order, ...prev]);
-        setHighlightedId(order._id);
-
-        setTimeout(() => setHighlightedId(null), 5000);
-      } catch (err) {
-        console.error("[AdminOrders] Failed to parse SSE message:", err);
-      }
-    };
-
-    eventSource.onerror = (err) => {
-      console.error("[AdminOrders] SSE error:", err);
-      toast.error("Error receiving real-time updates. Please try again.");
-    };
-
-    return () => {
-      eventSource.close();
-    };
   }, []);
 
-  // Handle order accept
+  // Handle accepting an order
   const handleAccept = async (orderId) => {
     try {
       const res = await fetch(`${API_BASE}/${orderId}/accept`, {
-        method: "PUT",
+        method: 'PUT',
       });
-      const data = await res.json();
-      if (res.ok) {
-        setOrders((prev) =>
-          prev.map((order) => (order._id === orderId ? data.order : order))
-        );
-        toast.success("✅ Order accepted!");
-      } else {
-        toast.error("❌ Error accepting order");
+
+      if (!res.ok) {
+        throw new Error('Failed to accept order');
       }
+
+      // Optimistically update the order status locally
+      setOrders(prevOrders =>
+        prevOrders.map(order =>
+          order._id === orderId ? { ...order, status: "Accepted" } : order
+        )
+      );
     } catch (err) {
-      console.error("[AdminOrders] Error accepting order:", err);
-      toast.error("❌ Error accepting order");
+      setError(`Error accepting order: ${err.message}`);
     }
   };
 
-  // Handle order reject
+  // Handle rejecting an order
   const handleReject = async (orderId) => {
     try {
       const res = await fetch(`${API_BASE}/${orderId}/reject`, {
-        method: "PUT",
+        method: 'PUT',
       });
-      const data = await res.json();
-      if (res.ok) {
-        setOrders((prev) =>
-          prev.map((order) => (order._id === orderId ? data.order : order))
-        );
-        toast.success("❌ Order rejected!");
-      } else {
-        toast.error("❌ Error rejecting order");
+
+      if (!res.ok) {
+        throw new Error('Failed to reject order');
       }
+
+      // Optimistically update the order status locally
+      setOrders(prevOrders =>
+        prevOrders.map(order =>
+          order._id === orderId ? { ...order, status: "Rejected" } : order
+        )
+      );
     } catch (err) {
-      console.error("[AdminOrders] Error rejecting order:", err);
-      toast.error("❌ Error rejecting order");
+      setError(`Error rejecting order: ${err.message}`);
     }
   };
 
-  // Handle marking order as received
+  // Handle marking an order as received
   const handleMarkReceived = async (orderId, isReceived) => {
     try {
       const res = await fetch(`${API_BASE}/${orderId}/received`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ isReceived }),
       });
-      const data = await res.json();
-      if (res.ok) {
-        setOrders((prev) =>
-          prev.map((order) => (order._id === orderId ? data.order : order))
-        );
-        toast.success(isReceived ? "✅ Order collected!" : "⏳ Order is still waiting.");
-      } else {
-        toast.error("❌ Error updating order status");
+
+      if (!res.ok) {
+        throw new Error('Failed to update order status');
       }
+
+      // Optimistically update the order status locally
+      setOrders(prevOrders =>
+        prevOrders.map(order =>
+          order._id === orderId ? { ...order, isReceived } : order
+        )
+      );
     } catch (err) {
-      console.error("[AdminOrders] Error updating order status:", err);
-      toast.error("❌ Error updating order status");
+      setError(`Error marking order as received: ${err.message}`);
     }
   };
 
-  // Handle order deletion
+  // Handle deleting an order
   const handleDelete = async (orderId) => {
     try {
       const res = await fetch(`${API_BASE}/${orderId}`, {
-        method: "DELETE",
+        method: 'DELETE',
       });
-      if (res.ok) {
-        setOrders((prev) => prev.filter((order) => order._id !== orderId));
-        toast.success("🗑️ Order deleted!");
-      } else {
-        toast.error("❌ Error deleting order");
+
+      if (!res.ok) {
+        throw new Error('Failed to delete order');
       }
+
+      // Optimistically remove the order from the list
+      setOrders(prevOrders => prevOrders.filter(order => order._id !== orderId));
     } catch (err) {
-      console.error("[AdminOrders] Error deleting order:", err);
-      toast.error("❌ Error deleting order");
+      setError(`Error deleting order: ${err.message}`);
     }
   };
 
   return (
     <div>
       <Navbar />
-      <ToastContainer />
       <div className="admin-orders">
         <h2>Admin Orders</h2>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Date</th>
-              <th>Items</th>
-              <th>Order ID</th>
-              <th>Token</th>
-              <th>Status</th>
-              <th>Order Received</th>
-              <th>Action</th>
+              <th>Username</th><th>Email</th><th>Date</th><th>Items</th>
+              <th>Order ID</th><th>Token</th><th>Status</th>
+              <th>Order Received</th><th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -180,13 +137,21 @@ const AdminOrders = () => {
               </tr>
             ) : (
               orders.map((order) => (
-                <tr key={order._id} className={highlightedId === order._id ? "highlight-row" : ""}>
-                  <td>{order.username}</td>
-                  <td>{order.email}</td>
+                <tr key={order._id}>
+                  <td>{order.username || "N/A"}</td>
+                  <td>{order.email || "N/A"}</td>
                   <td>{new Date(order.createdAt).toLocaleString()}</td>
-                  <td>{order.items?.length > 0 ? order.items.map((item, idx) => <div key={idx}>{item.name} × {item.quantity}</div>) : <em>No items</em>}</td>
-                  <td>{order.orderId}</td>
-                  <td>{order.token}</td>
+                  <td>
+                    {order.items?.length
+                      ? order.items.map((item, idx) => (
+                          <div key={idx}>
+                            {item.name} × {item.quantity}
+                          </div>
+                        ))
+                      : <em>No items</em>}
+                  </td>
+                  <td>{order.orderId || "N/A"}</td>
+                  <td>{order.token || "N/A"}</td>
                   <td>
                     {order.status === "Pending" && (
                       <>
@@ -196,12 +161,20 @@ const AdminOrders = () => {
                     )}
                     {order.status === "Accepted" && <span style={{ color: "green" }}>✅ Accepted</span>}
                     {order.status === "Rejected" && <span style={{ color: "red" }}>❌ Rejected</span>}
-                    {order.status === "Collected" && <span style={{ color: "blue" }}>📦 Collected</span>}
-                    {order.status === "Waiting" && <span style={{ color: "orange" }}>⏳ Waiting</span>}
                   </td>
                   <td>
-                    <button onClick={() => handleMarkReceived(order._id, true)} disabled={order.isReceived === true}>Yes</button>
-                    <button onClick={() => handleMarkReceived(order._id, false)} disabled={order.isReceived === false}>No</button>
+                    <button
+                      onClick={() => handleMarkReceived(order._id, true)}
+                      disabled={order.isReceived === false}
+                    >
+                      Yes
+                    </button>
+                    <button
+                      onClick={() => handleMarkReceived(order._id, false)}
+                      disabled={order.isReceived === true}
+                    >
+                      No
+                    </button>
                   </td>
                   <td>
                     <button onClick={() => handleDelete(order._id)}>Delete</button>
