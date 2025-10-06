@@ -26,6 +26,13 @@ const Login = () => {
       return;
     }
 
+    if (!REACT_API_URL) {
+      console.error("REACT_API_URL is not defined!");
+      setError("Internal error: API URL not set.");
+      setLoading(false);
+      return;
+    }
+
     try {
       console.log("Using backend URL:", REACT_API_URL);
       const res = await fetch(`${REACT_API_URL}/api/auth/login`, {
@@ -36,7 +43,6 @@ const Login = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      // get raw response first
       const text = await res.text();
       console.log("Production raw response from server:", text);
 
@@ -51,11 +57,14 @@ const Login = () => {
         throw new Error(data.error || "Login failed.");
       }
 
-      setSuccess(data.message);
+      setSuccess(data.message || "Login successful!");
       setEmail("");
       setPassword("");
+
+      // Save token and user info
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
+
       setTimeout(() => navigate("/dashboard"), 1000);
     } catch (err) {
       console.error("Login error:", err);
@@ -68,12 +77,13 @@ const Login = () => {
   return (
     <div className="login-body">
       <div className="content-wrapper">
-        <div className="logo-container">
-          <img src="/Images/Catalyst.png" alt="Logo" className="logo-img" />
-        </div>
+        <img
+          src="/Assets/Logo1.png" 
+          alt="PickNPay Logo"
+          className="logo1-img"
+        />
 
         <form className="login-form" onSubmit={handleLogin}>
-          <h2>Login</h2>
           <input
             type="email"
             placeholder="Enter your Email"

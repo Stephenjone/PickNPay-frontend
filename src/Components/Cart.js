@@ -18,7 +18,6 @@ const Cart = () => {
   const pollingInterval = useRef(null);
 
   useEffect(() => {
-    // Load user data from localStorage
     const storedUser = localStorage.getItem('user');
     if (!storedUser) {
       setError('User not logged in');
@@ -35,7 +34,7 @@ const Cart = () => {
       setLoading(false);
     }
 
-    return () => clearInterval(pollingInterval.current); // Cleanup on component unmount
+    return () => clearInterval(pollingInterval.current);
   }, []);
 
   useEffect(() => {
@@ -68,13 +67,45 @@ const Cart = () => {
     0
   );
 
-  // Handle item removal from cart
+  const updateQuantity = async (itemId, newQuantity) => {
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) {
+      setError('User not logged in');
+      return;
+    }
+
+    const { email } = JSON.parse(storedUser);
+
+    try {
+      const res = await fetch(`${API_BASE}/cart/update`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, itemId, quantity: newQuantity }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to update quantity');
+      }
+
+      const updatedItems = cartItems.map(item => {
+        if (item._id === itemId) {
+          return { ...item, quantity: newQuantity };
+        }
+        return item;
+      }).filter(item => item.quantity > 0);
+
+      setCartItems(updatedItems);
+    } catch (err) {
+      console.error('Error updating quantity:', err);
+      setError(err.message);
+    }
+  };
+
   const handleRemoveItem = async (itemId) => {
-    // Remove item from the cart in the UI
     const updatedCart = cartItems.filter(item => item._id !== itemId);
     setCartItems(updatedCart);
 
-    // Update the cart in the backend
     const storedUser = localStorage.getItem('user');
     if (!storedUser) {
       setError('User not logged in');
@@ -152,16 +183,11 @@ const Cart = () => {
       setOrderRejected(false);
       setShowOrderPopup(true);
 
-      // Clear cart
-      const storedUser = localStorage.getItem('user');
       const email = JSON.parse(storedUser).email;
-
       await fetch(`${API_BASE}/cart/${email}`, { method: 'DELETE' });
 
       setCartItems([]);
       localStorage.setItem('cartCount', 0);
-
-      // Poll order status
       pollOrderStatus(data.order._id);
     } catch (err) {
       setError(err.message);
@@ -234,9 +260,15 @@ const Cart = () => {
                   />
                   <div>
                     <h3>{name}</h3>
-                    <p>
-                      ₹{price.toFixed(2)} × {quantity} = ₹{(price * quantity).toFixed(2)}
-                    </p>
+
+                    <div className="quantity-controls">
+                      <button onClick={() => updateQuantity(_id, quantity - 1)} disabled={quantity <= 1}>-</button>
+                      <span>{quantity}</span>
+                      <button onClick={() => updateQuantity(_id, quantity + 1)}>+</button>
+                    </div>
+
+                    <p>Subtotal: ₹{(price * quantity).toFixed(2)}</p>
+
                     <button onClick={() => handleRemoveItem(_id)} className="remove-btn">
                       Remove
                     </button>

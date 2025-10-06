@@ -53,11 +53,12 @@ const Register = () => {
   return (
     <div className="register-body">
       <div className="content-wrapper">
-        <div className="logo-container">
-          <img src="/Images/Catalyst.png" alt="Logo" className="logo-img" />
-        </div>
+        <img
+          src="/Assets/Logo1.png" 
+          alt="PickNPay Logo"
+          className="logo1-img"
+        />
         <form className="register-form" onSubmit={handleRegister}>
-          <h2>Register</h2>
           <input type="text" placeholder="Enter your Name"
             value={name} onChange={(e) => setName(e.target.value)} />
           <input type="email" placeholder="Enter your Email"

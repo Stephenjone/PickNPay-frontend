@@ -1,6 +1,4 @@
-/* =========================
-   Navbar Base Styles
-========================= */
+
 .navbar {
   display: flex;
   flex-direction: row;
@@ -23,26 +21,49 @@
   flex-wrap: nowrap;
 }
 
-/* Container for logo, buttons, user info */
+
 .nav-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
   gap: 20px;
+  flex-wrap: wrap;
 }
 
-/* Logo */
-.logo {
-  font-size: 34px;
-  font-weight: 400;
-  color: #fff;
+
+.logo-img {
+  height: 50px;
+  width: auto;
   cursor: pointer;
   user-select: none;
-  white-space: nowrap;
 }
 
-/* Buttons container */
+
+.nav-search-input {
+  flex: 1;
+  min-width: 200px;
+  max-width: 500px;
+  height: 40px;
+  padding: 8px 12px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: none;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+  outline: none;
+  color: #333;
+  transition: box-shadow 0.3s ease;
+}
+
+.nav-search-input::placeholder {
+  color: #999;
+}
+
+.nav-search-input:focus {
+  box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.8);
+}
+
+
 .nav-buttons {
   display: flex;
   gap: 10px;
@@ -50,11 +71,10 @@
   flex-shrink: 0;
 }
 
-/* Buttons */
 .nav-btn {
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
-  padding: 8px 15px;
+  padding: 8px 14px;
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 6px;
   cursor: pointer;
@@ -72,21 +92,7 @@
   color: #111;
 }
 
-/* User Info (desktop) */
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #fff;
-  font-size: 22px;
-  white-space: nowrap;
-}
 
-.user-info span {
-  font-weight: 500;
-}
-
-/* Logout Button */
 .logout-btn {
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
@@ -103,7 +109,20 @@
   color: #111;
 }
 
-/* Mobile User Icon / Toggle */
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 22px;
+  color: #fff;
+}
+
+.user-info span {
+  font-weight: 500;
+}
+
+
 .mobile-user-icon {
   display: none;
   font-size: 26px;
@@ -117,10 +136,10 @@
 .mobile-username {
   display: none;
   font-weight: 500;
-  font-size: 16px;
+  font-size: 18px;
 }
 
-/* Mobile Dropdown Menu */
+
 .mobile-menu {
   display: none;
   flex-direction: column;
@@ -129,7 +148,7 @@
   padding: 12px 0;
   border-radius: 8px;
   margin-top: 10px;
-  transition: max-height 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .mobile-menu.show {
@@ -146,52 +165,24 @@
   border-radius: 6px;
 }
 
-/* =========================
-   Responsive Breakpoints
-========================= */
 
-/* Tablets (iPad, Surface, Galaxy Fold, etc.) */
+
+
 @media (max-width: 992px) {
   .navbar {
-    padding: 8px 15px;
+    padding: 10px 16px;
   }
 
-  .logo {
-    font-size: 26px;
-  }
-
-  .nav-btn {
-    font-size: 14px;
-    padding: 5px 10px;
-  }
-
+  .nav-btn,
   .logout-btn {
     font-size: 14px;
-    padding: 5px 10px;
-  }
-
-  .mobile-username {
-    font-size: 18px;
-  }
-
-  .mobile-user-icon {
-    font-size: 28px;
-  }
-}
-
-/* Mobiles (≤768px) */
-@media (max-width: 768px) {
-  .desktop-only {
-    display: none;
-  }
-
-  .navbar {
     padding: 6px 10px;
-    height: 46px;
   }
 
-  .logo {
-    font-size: 24px;
+  .nav-search-input {
+    font-size: 15px;
+    min-width: 200px;
+    max-width: 500px;
   }
 
   .mobile-user-icon {
@@ -200,67 +191,165 @@
   }
 
   .mobile-username {
+    display: inline;
     font-size: 18px;
   }
 }
 
-/* Small Mobiles (≤500px) */
-@media (max-width: 500px) {
-  .navbar {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 5px 8px;
-    height: 44px;
-  }
-
-  .nav-buttons,
-  .user-info {
+/* Tablets and below */
+@media (max-width: 768px) {
+  .desktop-only {
     display: none;
   }
 
-  .logo {
-    font-size: 22px;
+  .nav-header {
+    flex-wrap: wrap;
+    gap: 12px;
   }
 
-  .mobile-username {
-    display: inline;
-    font-size: 16px;
+  .navbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 8px 12px;
+  }
+
+  .nav-search-input {
+    min-width: 100px;
+    max-width:200px;
+    height:30px;
+  }
+}
+
+/* Phones (small) */
+@media (max-width: 500px) {
+  .logo-img {
+    height: 40px;
   }
 
   .mobile-user-icon {
     font-size: 22px;
   }
-}
 
-/* Ultra Small (≤375px) */
-@media (max-width: 375px) {
-  .navbar {
-    padding: 4px 6px;
-    height: 42px;
+  .mobile-username {
+    font-size: 18px;
   }
 
-  .logo {
-    font-size: 20px;
+  .nav-search-input {
+    font-size: 14px;
+    padding: 6px 10px;
   }
 
   .nav-btn,
   .logout-btn {
-    font-size: 12px;
-    padding: 4px 6px;
+    font-size: 13px;
+    padding: 5px 8px;
   }
+}
 
-  .mobile-username {
-    font-size: 15px;
+/* Very Small Devices (≤375px) */
+@media (max-width: 375px) {
+  .nav-search-input {
+    font-size: 13px;
+    padding: 5px 8px;
   }
 
   .mobile-user-icon {
     font-size: 20px;
   }
+
+  .mobile-username {
+    font-size: 16px;
+  }
 }
 
-/* =========================
-   Add Item Modal Styles
-========================= */
+
+/* ========== iPad Portrait (768px) ========== */
+@media screen and (width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px 16px;
+  }
+
+  .desktop-only {
+    display: none;
+  }
+
+  .nav-header {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .nav-search-input {
+    max-width: 300px;
+    font-size: 15px;
+    height: 36px;
+  }
+
+  .desktop-only {
+    display: none;
+  }
+
+  .mobile-user-icon {
+    display: flex;
+  }
+
+  .mobile-username {
+    display: inline;
+  }
+}
+
+/* ========== iPad Landscape (1024px) and small laptops ========== */
+@media screen and (max-width: 1024px) and (min-width: 769px) {
+  .navbar {
+    padding: 10px 18px;
+  }
+
+  .desktop-only {
+    display: none;
+  }
+
+  .nav-search-input {
+    max-width: 400px;
+    font-size: 16px;
+  }
+
+  .nav-btn,
+  .logout-btn {
+    font-size: 15px;
+    padding: 7px 12px;
+  }
+
+  .mobile-user-icon {
+    display: flex;
+  }
+
+  .mobile-username {
+    display: inline;
+  }
+}
+
+/* ========== iPad Pro 11" Landscape (1194px) ========== */
+@media screen and (max-width: 1194px) and (min-width: 1025px) {
+  .navbar {
+    padding: 10px 20px;
+  }
+  .desktop-only {
+    display: none;
+  }
+
+  .nav-search-input {
+    max-width: 450px;
+  }
+
+  .nav-btn,
+  .logout-btn {
+    font-size: 16px;
+    padding: 8px 14px;
+  }
+}
+
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -337,14 +426,13 @@
   color: white;
 }
 
-/* Error Message */
 .error {
   color: red;
   font-size: 14px;
   margin: 8px 0;
 }
 
-/* Optional glass style */
+
 .glass-card {
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);

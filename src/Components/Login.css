@@ -1,17 +1,23 @@
-/* ---------- Global reset ---------- */
-*, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+/* ---------- Global Reset ---------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+}
 
-/* ---------- Page background ---------- */
+/* ---------- Page Background ---------- */
 .login-body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: #F3E2D4;
   min-height: 100dvh;
   display: flex;
-  justify-content: center; 
+  justify-content: center;
   align-items: flex-start;
-  padding-top: 200px; 
+  padding-top: 150px;
 }
+
+
 
 /* ---------- Wrapper ---------- */
 .content-wrapper {
@@ -22,22 +28,18 @@ html { -webkit-text-size-adjust: 100%; }
 }
 
 /* ---------- Logo ---------- */
-.logo-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.logo-img {
+.logo1-img {
   display: block;
-  width: 180px;
+  width: 200px;
   height: auto;
+  margin: 0 auto;
+  cursor: pointer;
 }
 
 /* ---------- Form ---------- */
 .login-form {
   width: min(92vw, 440px);
-  padding: clamp(8px, 2vw, 14px) clamp(18px, 4vw, 28px); /* reduced vertical padding */
+  padding: clamp(18px, 4vw, 28px);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.16);
   backdrop-filter: blur(12px) saturate(100%);
@@ -46,6 +48,7 @@ html { -webkit-text-size-adjust: 100%; }
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
   display: flex;
   flex-direction: column;
+  margin-top: 0px;
 }
 
 /* ---------- Heading ---------- */
@@ -54,20 +57,20 @@ html { -webkit-text-size-adjust: 100%; }
   text-align: center;
   color: #111;
   font-family: "Playpen Sans", cursive;
-  font-size: clamp(20px, 3.6vw, 30px);
+  font-size: clamp(20px, 5vw, 30px);
   font-weight: 100;
 }
 
 /* ---------- Inputs ---------- */
 .login-form input {
   width: 100%;
-  padding: clamp(12px, 2.8vw, 14px);
+  padding: clamp(12px, 3vw, 16px);
   margin-bottom: 14px;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.45);
   background: rgba(255, 255, 255, 0.22);
   color: #111;
-  font-size: clamp(14px, 3.5vw, 16px);
+  font-size: clamp(14px, 4vw, 16px);
   transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
 }
 
@@ -85,13 +88,13 @@ html { -webkit-text-size-adjust: 100%; }
 /* ---------- Button ---------- */
 .login-form button {
   width: 100%;
-  padding: clamp(12px, 3vw, 14px);
+  padding: clamp(12px, 3vw, 16px);
   border: 0;
   border-radius: 10px;
   background: linear-gradient(135deg, #D7752C, #F5CF46);
   color: #fff;
   font-weight: 600;
-  font-size: clamp(14px, 3.6vw, 16px);
+  font-size: clamp(14px, 4vw, 16px);
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.25s ease, opacity 0.2s;
 }
@@ -118,10 +121,15 @@ html { -webkit-text-size-adjust: 100%; }
   background: rgba(255, 255, 255, 0.35);
 }
 
-.login-form .error { color: #d62828; }
-.login-form .success { color: #2a9d8f; }
+.login-form .error {
+  color: #d62828;
+}
 
-/* ---------- Register option ---------- */
+.login-form .success {
+  color: #2a9d8f;
+}
+
+/* ---------- Register Option ---------- */
 .register-option {
   margin-top: 14px;
   text-align: center;
@@ -135,29 +143,28 @@ html { -webkit-text-size-adjust: 100%; }
   font-weight: 600;
 }
 
-/* ---------- Responsive ---------- */
-@media (max-width: 420px) {
+/* ---------- Responsive Styles ---------- */
+@media (max-width: 600px) {
   .login-body {
-    background: #F3E2D4;
-    display: flex;
-  justify-content: center; 
-  align-items: flex-start;
-  padding-top: 100px; 
+    padding-top: 100px;
+    align-items: flex-start;
   }
 
-.logo-img {
-    width: 140px; /* smaller logo on mobile */
-    margin-bottom: 0px; /* tighter gap below logo */
+  .logo1-img {
+    width: 140px;
   }
 
   .login-form {
-    margin-top: 0; /* remove extra spacing if any */
+    padding: 16px;
   }
-
 }
 
 @media (min-width: 1200px) {
   .login-form {
-    width: 420px;
+    width: 440px;
+  }
+
+  .logo1-img {
+    width: 220px;
   }
 }

@@ -57,7 +57,7 @@
 }
 
 .cart-item p {
-  margin: 5px 0;
+  margin: 6px 0;
   color: #555;
   font-size: 0.95rem;
 }
@@ -68,8 +68,8 @@
 .quantity-controls {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 8px;
+  gap: 10px;
+  margin: 10px 0;
 }
 
 .quantity-controls button {
@@ -77,20 +77,39 @@
   height: 34px;
   border: none;
   border-radius: 8px;
-  background: #f0f0f0;
+  background: #e6e6e6;
   font-size: 1.2rem;
+  font-weight: bold;
   cursor: pointer;
   transition: all 0.2s ease;
+  color: #333;
 }
 
 .quantity-controls button:hover {
-  background: #ddd;
+  background: #d0d0d0;
+}
+
+.quantity-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .quantity-controls span {
-  font-weight: 600;
+  min-width: 24px;
+  text-align: center;
   font-size: 1rem;
-  color: #333;
+  font-weight: 600;
+  color: #222;
+}
+
+/* ==========================
+   Subtotal Text
+========================== */
+.cart-item p.subtotal {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #111;
+  margin-top: 5px;
 }
 
 /* ==========================
@@ -198,7 +217,7 @@
   color: #444;
 }
 
-/* Spinner for waiting state */
+/* Spinner */
 .loading-spinner {
   border: 4px solid #f3f3f3;
   border-top: 4px solid #4caf50;
@@ -214,7 +233,7 @@
   100% { transform: rotate(360deg); }
 }
 
-
+/* Order Popup Button */
 .order-popup button {
   background: #007bff;
   color: white;
@@ -241,9 +260,7 @@
   }
 }
 
-/* ==========================
-   Success Tick Animation
-========================== */
+/* Success Checkmark */
 .success-checkmark {
   width: 80px;
   height: 80px;
@@ -291,7 +308,7 @@
 }
 
 /* ==========================
-   Responsive Styles
+   Responsive
 ========================== */
 
 /* Tablets (<= 768px) */
@@ -315,6 +332,7 @@
 
   .quantity-controls {
     gap: 8px;
+    flex-wrap: wrap;
   }
 
   .placeorder-btn,
@@ -328,6 +346,7 @@
 @media (max-width: 480px) {
   .cart-items h2 {
     font-size: 1.4rem;
+    padding-top: 30px;
   }
 
   .cart-item h3 {
@@ -353,16 +372,10 @@
     padding: 20px;
   }
 
-  /* Stack buttons vertically with spacing */
   .placeorder-btn,
   .back-btn {
     display: block;
     width: 100%;
     margin: 8px 0;
-  }
-
-  /* Make quantity controls wrap on small screens */
-  .quantity-controls {
-    flex-wrap: wrap;
   }
 }

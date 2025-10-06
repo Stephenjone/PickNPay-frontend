@@ -6,11 +6,11 @@ import {
   FaBox,
   FaClipboardList,
   FaShoppingCart,
+  FaTimes,
 } from "react-icons/fa";
-import { FaTimes } from "react-icons/fa"; // ✅ Import close icon
 import "./Navbar.css";
 
-const Navbar = ({ onItemAdded, hideCart }) => {
+const Navbar = ({ searchTerm, onSearchChange, hideCart }) => {
   const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState("");
   const [userName, setUserName] = useState("");
@@ -55,8 +55,6 @@ const Navbar = ({ onItemAdded, hideCart }) => {
       if (!res.ok) throw new Error(data.error || "Failed to add item");
 
       alert("✅ Item added successfully");
-      if (onItemAdded) onItemAdded(data);
-
       setShowAddItem(false);
       setName("");
       setPrice("");
@@ -70,15 +68,29 @@ const Navbar = ({ onItemAdded, hideCart }) => {
 
   const isAdmin = userEmail === "admin@gmail.com";
 
+  const handleSearchChange = (e) => {
+    if (onSearchChange) onSearchChange(e.target.value);
+  };
+
   return (
     <>
       <nav className="navbar">
         <div className="nav-header">
-          <div className="logo" onClick={() => navigate("/dashboard")}>
-            PickNPay
-          </div>
+          <img
+            src="./Assets/Logo.png"
+            alt="PickNPay Logo"
+            className="logo-img"
+            onClick={() => navigate("/dashboard")}
+          />
 
-          {/* Desktop Admin Buttons */}
+          <input
+            type="text"
+            placeholder="Search items..."
+            className="nav-search-input"
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+
           {isAdmin && (
             <div className="nav-buttons desktop-only">
               <button className="nav-btn" onClick={() => setShowAddItem(true)}>
@@ -93,7 +105,6 @@ const Navbar = ({ onItemAdded, hideCart }) => {
             </div>
           )}
 
-          {/* Desktop User Info */}
           <div className="user-info desktop-only">
             {!isAdmin && !hideCart && (
               <>
@@ -106,7 +117,6 @@ const Navbar = ({ onItemAdded, hideCart }) => {
                 <button
                   className="nav-btn"
                   onClick={() => navigate("/cart")}
-                  title="Cart"
                 >
                   <FaShoppingCart /> Cart
                 </button>
@@ -121,23 +131,17 @@ const Navbar = ({ onItemAdded, hideCart }) => {
             </button>
           </div>
 
-          {/* Mobile User Icon / Close Icon */}
           <div
             className="mobile-user-icon"
             onClick={() => setMobileOpen((prev) => !prev)}
           >
-            {mobileOpen ? (
-              <FaTimes size={24} /> // ✅ Show Close icon when menu open
-            ) : (
-              <FaUser size={24} />
-            )}
+            {mobileOpen ? <FaTimes size={24} /> : <FaUser size={24} />}
             <span className="mobile-username">
               {isAdmin ? "Admin" : userName || userEmail || "Guest"}
             </span>
           </div>
         </div>
 
-        {/* Mobile Dropdown */}
         <div className={`mobile-menu ${mobileOpen ? "show" : ""}`}>
           {isAdmin ? (
             <>
@@ -156,7 +160,9 @@ const Navbar = ({ onItemAdded, hideCart }) => {
               {!hideCart && (
                 <button
                   className="nav-btn"
-                  onClick={() => navigate("/myorders")}
+                  onClick={() => {
+                    setMobileOpen(false);
+                    navigate("/myorders")}}
                 >
                   <FaClipboardList /> My Orders
                 </button>
@@ -164,8 +170,9 @@ const Navbar = ({ onItemAdded, hideCart }) => {
               {!hideCart && (
                 <button
                   className="nav-btn"
-                  onClick={() => navigate("/cart")}
-                  title="Cart"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    navigate("/cart")}}
                 >
                   <FaShoppingCart /> Cart
                 </button>
@@ -178,7 +185,6 @@ const Navbar = ({ onItemAdded, hideCart }) => {
         </div>
       </nav>
 
-      {/* Modal Add Item */}
       {showAddItem && (
         <div className="modal-overlay" onClick={() => setShowAddItem(false)}>
           <div
@@ -215,6 +221,7 @@ const Navbar = ({ onItemAdded, hideCart }) => {
                 <option value="Maggie">Maggie</option>
                 <option value="Juice">Juice</option>
                 <option value="Milk shake">Milk shake</option>
+                <option value="Fruit Bowl">Fruit Bowl</option>
               </select>
 
               <div className="file-upload">
