@@ -1,7 +1,7 @@
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
-  BrowserRouter,
+  HashRouter,
   Routes,
   Route,
   Navigate,
@@ -22,7 +22,6 @@ function AppWrapper() {
   const [searchTerm, setSearchTerm] = useState('');
   const location = useLocation();
 
-  
   const hideLayout = location.pathname === '/login' || location.pathname === '/register';
 
   return (
@@ -42,19 +41,16 @@ function AppWrapper() {
         <Route path="/myorders" element={<MyOrders />} />
       </Routes>
 
-     
-     {
-         /*!hideLayout && <Footer />
-     */ }
+      {/* {!hideLayout && <Footer />} */}
     </div>
   );
 }
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AppWrapper />
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
