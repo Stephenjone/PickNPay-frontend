@@ -4,9 +4,8 @@ import Navbar from "./Navbar";
 import "./MyOrders.css";
 
 const API_BASE = "http://localhost:5000/api";
-const SOCKET_URL = "http://localhost:5000"; // Your backend socket URL
 
-const socket = io(SOCKET_URL);
+const socket = io("http://localhost:5000"); // Adjust URL as needed
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);
@@ -14,10 +13,12 @@ export default function MyOrders() {
   const userStr = localStorage.getItem("user");
   const user = userStr ? JSON.parse(userStr) : null;
   const email = user?.email || "";
+  const userId = user?._id;
 
   useEffect(() => {
+    if (!email) return;
+
     async function fetchOrders() {
-      if (!email) return;
       try {
         const res = await fetch(`${API_BASE}/orders/user/${email}`);
         if (!res.ok) throw new Error("Failed to fetch orders");
@@ -27,31 +28,27 @@ export default function MyOrders() {
         console.error("Error fetching orders:", err);
       }
     }
+
     fetchOrders();
 
-    // Listen for order updates relevant to this user
-    socket.on("orderUpdate", (updatedOrder) => {
-      // Only update if order belongs to this user (by email)
-      if (updatedOrder.email === email) {
-        setOrders((prevOrders) => {
-          const exists = prevOrders.find((o) => o._id === updatedOrder._id);
-          if (exists) {
-            // Replace existing order with updated order
-            return prevOrders.map((o) =>
-              o._id === updatedOrder._id ? updatedOrder : o
-            );
-          } else {
-            // New order, add to front
-            return [updatedOrder, ...prevOrders];
-          }
-        });
-      }
-    });
+    if (userId) {
+      socket.emit('joinRoom', userId);
+
+      socket.on('orderUpdated', (update) => {
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order._id === update.orderId
+              ? { ...order, status: update.status, notification: update.notification }
+              : order
+          )
+        );
+      });
+    }
 
     return () => {
-      socket.off("orderUpdate");
+      socket.off('orderUpdated');
     };
-  }, [email]);
+  }, [email, userId]);
 
   return (
     <>
