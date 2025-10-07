@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
+import io from "socket.io-client";
 import Navbar from "./Navbar";
 import "./MyOrders.css";
 
 const API_BASE = "http://localhost:5000/api";
+const SOCKET_URL = "http://localhost:5000"; // Your backend socket URL
+
+const socket = io(SOCKET_URL);
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);
@@ -24,6 +28,29 @@ export default function MyOrders() {
       }
     }
     fetchOrders();
+
+    // Listen for order updates relevant to this user
+    socket.on("orderUpdate", (updatedOrder) => {
+      // Only update if order belongs to this user (by email)
+      if (updatedOrder.email === email) {
+        setOrders((prevOrders) => {
+          const exists = prevOrders.find((o) => o._id === updatedOrder._id);
+          if (exists) {
+            // Replace existing order with updated order
+            return prevOrders.map((o) =>
+              o._id === updatedOrder._id ? updatedOrder : o
+            );
+          } else {
+            // New order, add to front
+            return [updatedOrder, ...prevOrders];
+          }
+        });
+      }
+    });
+
+    return () => {
+      socket.off("orderUpdate");
+    };
   }, [email]);
 
   return (
