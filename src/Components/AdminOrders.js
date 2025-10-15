@@ -131,15 +131,16 @@ const AdminOrders = () => {
   };
 
   const handleDelete = async (orderId) => {
-    if (!window.confirm("Are you sure you want to delete this order?")) return;
-    try {
-      const res = await fetch(`${API_BASE}/${orderId}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Delete failed");
-      setOrders((prev) => prev.filter((o) => o._id !== orderId));
-    } catch (err) {
-      setError(`Delete error: ${err.message}`);
-    }
-  };
+  if (!window.confirm("Are you sure you want to hide this order from admin view?")) return;
+  try {
+    const res = await fetch(`${API_BASE}/${orderId}/admin-delete`, { method: "PUT" });
+    if (!res.ok) throw new Error("Delete failed");
+    setOrders((prev) => prev.filter((o) => o._id !== orderId));
+  } catch (err) {
+    setError(`Delete error: ${err.message}`);
+  }
+};
+
 
   return (
     <div>
