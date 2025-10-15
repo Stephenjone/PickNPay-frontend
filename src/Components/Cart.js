@@ -1,151 +1,180 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import io from 'socket.io-client';
 import './Cart.css';
 import Navbar from './Navbar';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { REACT_API_URL } from '../actionTypes/authActionTypes';
 
 const API_BASE = `${REACT_API_URL}/api`;
+const socket = io(REACT_API_URL, { transports: ['websocket'] });
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+
   const [showOrderPopup, setShowOrderPopup] = useState(false);
   const [orderId, setOrderId] = useState(null);
   const [tokenNumber, setTokenNumber] = useState(null);
   const [orderRejected, setOrderRejected] = useState(false);
-  const navigate = useNavigate();
-  const pollingInterval = useRef(null);
 
+  const navigate = useNavigate();
+
+  // Fetch cart and join socket room on mount
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (!storedUser) {
+    const storedUserRaw = localStorage.getItem('user');
+    if (!storedUserRaw) {
       setError('User not logged in');
       setLoading(false);
       return;
     }
 
+    let parsedUser;
     try {
-      const parsed = JSON.parse(storedUser);
-      if (!parsed.email) throw new Error('Email missing in user data');
-      fetchCart(parsed.email);
+      parsedUser = JSON.parse(storedUserRaw);
     } catch (err) {
+      console.error('[Client] JSON parse user error:', err);
       setError('Invalid user data');
       setLoading(false);
+      return;
     }
 
-    return () => clearInterval(pollingInterval.current);
+    const email = parsedUser.email;
+    if (!email) {
+      setError('User email missing');
+      setLoading(false);
+      return;
+    }
+
+    fetchCart(email);
+    socket.emit('joinRoom', email);
+
+    // Clean up socket listeners on unmount
+    return () => {
+      socket.off('orderAccepted');
+      socket.off('orderUpdated');
+    };
   }, []);
 
+  // Socket listeners for order updates
   useEffect(() => {
-    const totalCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-    localStorage.setItem('cartCount', totalCount);
-  }, [cartItems]);
+    const onOrderAccepted = (acceptedOrder) => {
+      if (!orderId || acceptedOrder._id !== orderId) return;
+
+      setTokenNumber(acceptedOrder.token);
+      setOrderRejected(false);
+      setShowOrderPopup(true);
+
+      setTimeout(() => {
+        setShowOrderPopup(false);
+        navigate('/myorders');
+      }, 5000);
+    };
+
+    const onOrderUpdated = (updatedOrder) => {
+      if (!orderId || updatedOrder._id !== orderId) return;
+
+      if (updatedOrder.adminStatus === 'Accepted') {
+        setTokenNumber(updatedOrder.token);
+        setOrderRejected(false);
+        setShowOrderPopup(true);
+
+        setTimeout(() => {
+          setShowOrderPopup(false);
+          navigate('/myorders');
+        }, 5000);
+      }
+    };
+
+    socket.on('orderAccepted', onOrderAccepted);
+    socket.on('orderUpdated', onOrderUpdated);
+
+    return () => {
+      socket.off('orderAccepted', onOrderAccepted);
+      socket.off('orderUpdated', onOrderUpdated);
+    };
+  }, [orderId, navigate]);
 
   const fetchCart = async (email) => {
     try {
       const res = await fetch(`${API_BASE}/cart/${email}`);
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to fetch cart');
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Failed to fetch cart');
       }
       const data = await res.json();
+
       if (!data.items || !Array.isArray(data.items)) {
         throw new Error('Invalid cart data format');
       }
+
       setCartItems(data.items);
       setError('');
     } catch (err) {
+      console.error('[Client] fetchCart error:', err);
       setError(err.message);
+      setCartItems([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const totalAmount = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
-
-  const updateQuantity = async (itemId, newQuantity) => {
-    const storedUser = localStorage.getItem('user');
-    if (!storedUser) {
-      setError('User not logged in');
-      return;
-    }
-
-    const { email } = JSON.parse(storedUser);
-
-    try {
-      const res = await fetch(`${API_BASE}/cart/update`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, itemId, quantity: newQuantity }),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || 'Failed to update quantity');
-      }
-
-      const updatedItems = cartItems.map(item => {
-        if (item._id === itemId) {
-          return { ...item, quantity: newQuantity };
-        }
-        return item;
-      }).filter(item => item.quantity > 0);
-
-      setCartItems(updatedItems);
-    } catch (err) {
-      console.error('Error updating quantity:', err);
-      setError(err.message);
-    }
-  };
+  const totalAmount = cartItems.reduce((sum, it) => sum + it.price * it.quantity, 0);
 
   const handleRemoveItem = async (itemId) => {
-    const updatedCart = cartItems.filter(item => item._id !== itemId);
-    setCartItems(updatedCart);
+    // Optimistically update UI
+    setCartItems((prev) => prev.filter((it) => it._id !== itemId));
 
-    const storedUser = localStorage.getItem('user');
-    if (!storedUser) {
-      setError('User not logged in');
+    const storedUserRaw = localStorage.getItem('user');
+    if (!storedUserRaw) return;
+
+    let parsedUser;
+    try {
+      parsedUser = JSON.parse(storedUserRaw);
+    } catch {
       return;
     }
-
-    const parsed = JSON.parse(storedUser);
-    const email = parsed.email;
+    const email = parsedUser.email;
+    if (!email) return;
 
     try {
-      await fetch(`${API_BASE}/cart/${email}`, {
+      const res = await fetch(`${API_BASE}/cart/${email}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ itemId }),
       });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Failed to remove item');
+      }
     } catch (err) {
-      setError('Failed to remove item from the cart');
+      console.error('[Client] remove item error:', err);
+      setError('Failed to remove item');
+      // Optionally revert UI change here by re-fetching cart
+      fetchCart(email);
     }
   };
 
   const handlePlaceOrder = async () => {
     setError('');
-    const storedUser = localStorage.getItem('user');
-    if (!storedUser) {
+    const storedUserRaw = localStorage.getItem('user');
+    if (!storedUserRaw) {
       setError('User not logged in');
       return;
     }
 
-    let email = '', username = '';
+    let parsedUser;
     try {
-      const user = JSON.parse(storedUser);
-      email = user.email;
-      username = user.username || user.name || '';
-    } catch {
+      parsedUser = JSON.parse(storedUserRaw);
+    } catch (err) {
+      console.error('[Client] JSON parse user error in placeOrder:', err);
       setError('Invalid user data');
       return;
     }
 
-    if (!username || !email) {
-      setError('Incomplete user info');
+    const { email, username } = parsedUser;
+    if (!email) {
+      setError('User email missing');
       return;
     }
 
@@ -154,73 +183,43 @@ const Cart = () => {
       return;
     }
 
-    const orderData = {
-      username,
-      email,
-      items: cartItems,
-    };
+    const orderItems = cartItems.map(({ _id, name, price, quantity }) => ({
+      _id,
+      name,
+      price,
+      quantity,
+    }));
 
     try {
       const res = await fetch(`${API_BASE}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData),
+        body: JSON.stringify({
+          username: username || 'Guest',
+          email,
+          items: orderItems,
+        }),
       });
 
-      const text = await res.text();
+      const data = await res.json();
+
       if (!res.ok) {
-        let errorMessage = 'Failed to place order';
-        try {
-          const errorData = JSON.parse(text);
-          errorMessage = errorData.message || errorMessage;
-        } catch (_) {}
-        throw new Error(errorMessage);
+        throw new Error(data.message || 'Failed to place order');
       }
 
-      const data = JSON.parse(text);
       setOrderId(data.order._id);
       setTokenNumber(null);
       setOrderRejected(false);
       setShowOrderPopup(true);
 
-      const email = JSON.parse(storedUser).email;
+      // Clear cart on backend and frontend
       await fetch(`${API_BASE}/cart/${email}`, { method: 'DELETE' });
-
       setCartItems([]);
       localStorage.setItem('cartCount', 0);
-      pollOrderStatus(data.order._id);
     } catch (err) {
+      console.error('[Client] placeOrder error:', err);
       setError(err.message);
     }
-  };
-
-  const pollOrderStatus = (orderId) => {
-    pollingInterval.current = setInterval(async () => {
-      try {
-        const res = await fetch(`${API_BASE}/orders/${orderId}`);
-        if (!res.ok) throw new Error(`Status fetch failed (${res.status})`);
-        const data = await res.json();
-
-        if (data.status === 'Accepted') {
-          setTokenNumber(data.token);
-          setOrderRejected(false);
-          setShowOrderPopup(true);
-
-          clearInterval(pollingInterval.current);
-
-          setTimeout(() => {
-            setShowOrderPopup(false);
-            navigate('/myorders');
-          }, 3000);
-        } else if (data.status === 'Rejected') {
-          setOrderRejected(true);
-          setTokenNumber(null);
-          clearInterval(pollingInterval.current);
-        }
-      } catch (err) {
-        console.error('Polling error:', err);
-      }
-    }, 3000);
   };
 
   const closePopup = () => {
@@ -228,13 +227,11 @@ const Cart = () => {
     setTokenNumber(null);
     setOrderId(null);
     setOrderRejected(false);
-    if (pollingInterval.current) clearInterval(pollingInterval.current);
   };
 
   return (
     <>
       <Navbar />
-
       <div className="cart-container">
         <div className="cart-items">
           <h2>Your Cart</h2>
@@ -243,41 +240,29 @@ const Cart = () => {
             <p>Loading cart...</p>
           ) : error ? (
             <p style={{ color: 'red' }}>{error}</p>
-          ) : !cartItems.length ? (
+          ) : cartItems.length === 0 ? (
             <p>Your cart is empty.</p>
           ) : (
             <>
               {cartItems.map(({ _id, name, price, image, quantity }) => (
                 <div key={_id} className="cart-item">
                   <img
-                    src={
-                      image
-                        ? `${REACT_API_URL}/uploads/${image}`
-                        : 'https://via.placeholder.com/80'
-                    }
+                    src={image ? `${REACT_API_URL}/uploads/${image}` : 'https://via.placeholder.com/80'}
                     alt={name}
                     className="cart-item-image"
                   />
                   <div>
                     <h3>{name}</h3>
-
-                    <div className="quantity-controls">
-                      <button onClick={() => updateQuantity(_id, quantity - 1)} disabled={quantity <= 1}>-</button>
-                      <span>{quantity}</span>
-                      <button onClick={() => updateQuantity(_id, quantity + 1)}>+</button>
-                    </div>
-
-                    <p>Subtotal: ₹{(price * quantity).toFixed(2)}</p>
-
+                    <p>
+                      ₹{price.toFixed(2)} × {quantity} = ₹{(price * quantity).toFixed(2)}
+                    </p>
                     <button onClick={() => handleRemoveItem(_id)} className="remove-btn">
                       Remove
                     </button>
                   </div>
                 </div>
               ))}
-
               <h3>Total: ₹{totalAmount.toFixed(2)}</h3>
-
               <button className="placeorder-btn" onClick={handlePlaceOrder}>
                 Place Order
               </button>
@@ -289,20 +274,25 @@ const Cart = () => {
               <div className="order-popup">
                 {tokenNumber && !orderRejected ? (
                   <>
-                    <div className="success-checkmark"></div>
-                    <p className="order-accepted-text">✅ Order Accepted!</p>
-                    <p>Your token: <strong>{tokenNumber}</strong></p>
+                    <h3 style={{ color: '#4BB543' }}>Order Accepted!</h3>
+                    <p>
+                      Your token number is: <strong>{tokenNumber}</strong>
+                    </p>
                     <p>Please collect it from the counter in 10 minutes.</p>
                   </>
                 ) : orderRejected ? (
-                  <p style={{ color: 'red' }}>❌ Restaurant cannot accept your order now.</p>
+                  <>
+                    <h3 style={{ color: '#e74c3c' }}>Order Rejected</h3>
+                    <p>Sorry! Restaurant cannot accept your order now.</p>
+                  </>
                 ) : (
                   <>
-                    <div className="loading-spinner"></div>
                     <p>Waiting for the restaurant to accept your order...</p>
                   </>
                 )}
-                <button onClick={closePopup}>Close</button>
+                <button onClick={closePopup} style={{ marginTop: '1rem' }}>
+                  Close
+                </button>
               </div>
             </div>
           )}

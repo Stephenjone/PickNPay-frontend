@@ -208,7 +208,7 @@ const Items = ({ searchTerm }) => {
                     <div key={item._id || item.id} className="item-card">
                       {imgSrc && <img src={imgSrc} alt={item.name} />}
                       <h3>{item.name}</h3>
-                      <p style={{ fontSize: "15px" }}>
+                      <p>
                         <b>₹{item.price}</b>
                       </p>
 

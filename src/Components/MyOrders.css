@@ -1,96 +1,165 @@
+/* Container */
 .my-orders-container {
-  padding: 90px 20px 40px;
-  background: linear-gradient(135deg, #f9f9f9, #eef2f3);
-  font-family: 'Segoe UI', sans-serif;
-  margin-top: 10px;
-  position: relative;
-  width: 100vw;
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  font-family: 'Roboto', sans-serif;
 }
 
-.myorders-navbar {
-  width: 100vw;
-}
 
-.my-orders-title {
-  text-align: center;
-  position: fixed;
-  font-size: 2rem;
-  font-weight: 700;
-  color: #2c3e50;
-  background: #f9f9f9;
-  border-radius: 8px;
-}
-
+/* No orders message */
 .no-orders {
   text-align: center;
-  color: #888;
-  font-size: 1.1rem;
+  color: #999;
+  font-size: 1rem;
+  padding-top:50px;
 }
 
+/* Order Card */
 .order-card {
-  background: white;
+  background: #fff;
   border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 15px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  width: 600px;
-  max-width: 100%;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1.5rem;
+  transition: transform 0.2s;
+  border-left: 5px solid #fc8019; /* Swiggy-like accent */
 }
 
 .order-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+  transform: translateY(-3px);
 }
 
-.order-id {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #34495e;
-  margin-bottom: 8px;
-}
-
-.order-token {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 8px;
-}
-
+/* Order Info */
+.order-id,
+.order-token,
 .order-total {
+  font-weight: 500;
+  margin: 0.3rem 0;
+  font-size: 0.95rem;
+}
+
+/* Items */
+.items-inline {
+  margin: 0.5rem 0;
+}
+
+.order-item-block {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.6rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Feedback Display */
+.feedback-display {
+  margin-top: 0.3rem;
+  color: #444;
+  font-size: 0.9rem;
+}
+
+.read-only-stars {
+  color: #fc8019;
+  margin-right: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* Feedback Form */
+.feedback-form {
+  margin-top: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.feedback-form label {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.feedback-form input {
+  padding: 0.5rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 0.9rem;
+}
+
+.feedback-form button {
+  background: #fc8019;
+  color: white;
+  font-weight: 500;
+  border: none;
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  align-self: flex-start;
+  transition: background 0.2s;
+}
+
+.feedback-form button:hover {
+  background: #e67300;
+}
+
+/* Star rating */
+.star-rating {
+  display: flex;
+  gap: 0.2rem;
+  margin-bottom: 0.2rem;
+}
+
+.star {
   font-size: 1rem;
-  font-weight: bold;
-  color: #000;
-  margin-bottom: 8px;
+  cursor: pointer;
+  color: #ddd;
+  transition: color 0.2s;
+}
+
+.star.filled {
+  color: #fc8019;
+}
+
+/* Status line */
+.order-status-line {
+  margin-top: 0.5rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .order-status {
-  font-size: 0.95rem;
-  margin-bottom: 12px;
+  padding: 0.2rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #fff;
 }
 
-.order-status.pending {
-  color: #f39c12;
-  font-weight: 600;
-}
+.order-status.pending { background: #ff9800; }
+.order-status.accepted { background: #03a9f4; }
+.order-status.ready { background: #4caf50; }
+.order-status.collected { background: #9e9e9e; }
+.order-status.waiting { background: #f44336; }
 
-.order-status.accepted {
-  color: #27ae60;
-  font-weight: 600;
-}
+/* Responsive */
+@media (max-width: 600px) {
+  .order-card {
+    padding: 1rem;
+  }
 
-.order-status.rejected {
-  color: #e74c3c;
-  font-weight: 600;
-}
+  .order-item-block {
+    font-size: 0.9rem;
+  }
 
-/* ✅ Inline items fix */
-.items-inline {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  white-space: nowrap;
-}
-.items-inline span {
-  margin-right: 6px;
+  .feedback-form input {
+    font-size: 0.85rem;
+  }
+
+  .feedback-form button {
+    font-size: 0.85rem;
+  }
+
 }

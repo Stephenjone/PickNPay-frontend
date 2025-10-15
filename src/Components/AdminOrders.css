@@ -23,6 +23,44 @@
   transition: background-color 0.3s ease;
 }
 
+.accepted-btn {
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: default;
+}
+
+.accept-order-btn {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  color: black;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.accept-order-btn:hover {
+  background-color: #ddd;
+}
+
+.delete-order-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.delete-order-btn:hover {
+  background-color: #c0392b;
+}
+
+
 
 .admin-table th,
 .admin-table td {
