@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Register.css';
 
-const API_BASE = "https://picknpay-backend-3.onrender.com"; // 🔑 Render backend URL
+const API_BASE = "https://picknpay-backend-5.onrender.com"; 
 
 const Register = () => {
   const [name, setName] = useState("");
