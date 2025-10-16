@@ -3,11 +3,8 @@ import io from "socket.io-client";
 import Navbar from "./Navbar";
 import "./MyOrders.css";
 
-// ✅ Automatically detect API base
-const API_BASE =
-  process.env.REACT_APP_API_URL || `${window.location.origin}/api`;
-const SOCKET_SERVER_URL =
-  process.env.REACT_APP_SOCKET_URL || window.location.origin;
+const API_BASE = "http://localhost:5000/api";
+const SOCKET_SERVER_URL = "http://localhost:5000";
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);
@@ -23,9 +20,7 @@ export default function MyOrders() {
     if (!email) return;
 
     try {
-      const res = await fetch(
-        `${API_BASE}/orders/user/${encodeURIComponent(email)}`
-      );
+      const res = await fetch(`${API_BASE}/orders/user/${encodeURIComponent(email)}`);
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
         throw new Error(errData.message || "Failed to fetch orders");
@@ -44,19 +39,14 @@ export default function MyOrders() {
 
     fetchOrders();
 
-    const newSocket = io(SOCKET_SERVER_URL, {
-      transports: ["websocket"],
-      withCredentials: true,
-    });
+    const newSocket = io(SOCKET_SERVER_URL, { transports: ["websocket"] });
     setSocket(newSocket);
 
     newSocket.emit("joinRoom", email);
 
     const updateOrder = (updatedOrder) => {
       setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order._id === updatedOrder._id ? updatedOrder : order
-        )
+        prevOrders.map((order) => (order._id === updatedOrder._id ? updatedOrder : order))
       );
     };
 
