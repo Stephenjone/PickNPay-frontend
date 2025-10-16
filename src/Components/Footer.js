@@ -5,7 +5,7 @@ const Footer =()=>{
     return(
         <div className="footer">
             <img src="./Assets/Copyright.png" alt="copyright"/>
-            <p>PickNPay</p>
+            <p>Copyright ©PickNPay</p>
         </div>
     )
 }

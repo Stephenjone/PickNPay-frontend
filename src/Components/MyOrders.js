@@ -15,7 +15,7 @@ export default function MyOrders() {
   const user = userStr ? JSON.parse(userStr) : null;
   const email = user?.email || "";
 
-  // Fetch user orders
+  // ✅ Fetch all user orders
   const fetchOrders = async () => {
     if (!email) return;
 
@@ -33,18 +33,17 @@ export default function MyOrders() {
     }
   };
 
+  // ✅ Load orders + listen for socket updates
   useEffect(() => {
     if (!email) return;
 
     fetchOrders();
 
-    // Setup socket connection
     const newSocket = io(SOCKET_SERVER_URL, { transports: ["websocket"] });
     setSocket(newSocket);
 
     newSocket.emit("joinRoom", email);
 
-    // Listen for order updates
     const updateOrder = (updatedOrder) => {
       setOrders((prevOrders) =>
         prevOrders.map((order) => (order._id === updatedOrder._id ? updatedOrder : order))
@@ -67,7 +66,7 @@ export default function MyOrders() {
     };
   }, [email]);
 
-  // Handle per-item input change
+  // ✅ Handle input change for feedback & rating
   const handleInputChange = (orderId, itemId, field, value) => {
     setFeedbackInputs((prev) => ({
       ...prev,
@@ -81,11 +80,10 @@ export default function MyOrders() {
     }));
   };
 
-  // Submit feedback for a specific item
+  // ✅ Submit feedback to backend
   const submitFeedback = async (orderId, itemId) => {
-    const itemFeedback = feedbackInputs[orderId]?.[itemId] || {};
-    const feedback = itemFeedback.feedback || "";
-    const rating = itemFeedback.rating;
+    const feedback = feedbackInputs[orderId]?.[itemId]?.feedback || "";
+    const rating = feedbackInputs[orderId]?.[itemId]?.rating;
 
     if (!rating || rating < 1 || rating > 5) {
       alert("Please select a rating between 1 and 5.");
@@ -105,16 +103,19 @@ export default function MyOrders() {
       }
 
       const data = await res.json();
-
-      // Update order in state
       setOrders((prevOrders) =>
-        prevOrders.map((order) => (order._id === data.order._id ? data.order : order))
+        prevOrders.map((order) =>
+          order._id === data.order._id ? data.order : order
+        )
       );
 
       alert("Feedback submitted!");
       setFeedbackInputs((prev) => ({
         ...prev,
-        [orderId]: { ...prev[orderId], [itemId]: { rating: "", feedback: "" } },
+        [orderId]: {
+          ...prev[orderId],
+          [itemId]: { rating: "", feedback: "" },
+        },
       }));
     } catch (err) {
       console.error("Feedback error:", err);
@@ -133,16 +134,17 @@ export default function MyOrders() {
             <p className="order-id">
               <strong>Order ID:</strong> {order.orderId || "Pending"}
             </p>
+
             {order.token && (
               <p className="order-token">
                 <strong>Token:</strong> {order.token}
               </p>
             )}
 
-            <p className="items-inline">
+            <div className="order-items">
               <strong>Items:</strong>
-              {order.items.map((item) => (
-                <div key={item._id} className="order-item-block">
+              {order.items.map((item, i) => (
+                <div key={i} className="order-item-block">
                   {item.name} × {item.quantity} — ₹{item.price?.toFixed(2)}
 
                   {order.adminStatus === "Collected" ? (
@@ -162,7 +164,8 @@ export default function MyOrders() {
                             <span
                               key={star}
                               className={
-                                star <= (feedbackInputs[order._id]?.[item._id]?.rating || 0)
+                                star <=
+                                (feedbackInputs[order._id]?.[item._id]?.rating || 0)
                                   ? "star filled"
                                   : "star"
                               }
@@ -176,6 +179,7 @@ export default function MyOrders() {
                             </span>
                           ))}
                         </div>
+
                         <label>Comment:</label>
                         <input
                           type="text"
@@ -183,20 +187,28 @@ export default function MyOrders() {
                           placeholder="One line comment"
                           value={feedbackInputs[order._id]?.[item._id]?.feedback || ""}
                           onChange={(e) =>
-                            handleInputChange(order._id, item._id, "feedback", e.target.value)
+                            handleInputChange(
+                              order._id,
+                              item._id,
+                              "feedback",
+                              e.target.value
+                            )
                           }
                         />
-                        <button onClick={() => submitFeedback(order._id, item._id)}>Submit</button>
+
+                        <button onClick={() => submitFeedback(order._id, item._id)}>
+                          Submit
+                        </button>
                       </div>
                     )
                   ) : (
-                    <p style={{ fontSize: "0.85rem", color: "#888", marginTop: "0.3rem" }}>
+                    <p className="feedback-disabled">
                       Feedback available after order is collected
                     </p>
                   )}
                 </div>
               ))}
-            </p>
+            </div>
 
             <p className="order-total">
               <strong>Total:</strong> ₹{order.totalAmount?.toFixed(2) ?? "0.00"}

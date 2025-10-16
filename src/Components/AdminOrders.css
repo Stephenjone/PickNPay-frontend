@@ -1,162 +1,179 @@
-/* General table styling */
+/* ====== GENERAL LAYOUT ====== */
 .admin-orders {
-  padding: 20px;
+  width: 100%;
+  max-width: 1800px;
+  margin: 80px auto;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  font-family: "Poppins", sans-serif;
+  transition: all 0.3s ease;
 }
 
 .admin-orders h2 {
   text-align: center;
-  margin-bottom: 20px;
-  font-size: 22px;
+  margin-bottom: 25px;
+  font-size: 2rem;
+  color: #2c3e50;
+  font-weight: 600;
 }
 
+/* ====== TABLE ====== */
 .admin-table {
   width: 100%;
   border-collapse: collapse;
-  margin: 0 auto;
-  background: white;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
+  background-color: #fafafa;
 }
 
-.highlight-row {
-  background-color: #fff9c4 !important; /* Light yellow */
-  transition: background-color 0.3s ease;
+.admin-table thead {
+  background: #2c3e50;
+  color: #ffffff;
 }
-
-.accepted-btn {
-  background-color: #2ecc71;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: default;
-}
-
-.accept-order-btn {
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  color: black;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s ease-in-out;
-}
-
-.accept-order-btn:hover {
-  background-color: #ddd;
-}
-
-.delete-order-btn {
-  background-color: #e74c3c;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-.delete-order-btn:hover {
-  background-color: #c0392b;
-}
-
-
 
 .admin-table th,
 .admin-table td {
-  padding: 12px;
+  padding: 14px 16px;
   text-align: left;
-  border: 1px solid #ddd;
-  font-size: 14px;
+  font-size: 0.95rem;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: top;
 }
 
-/* Buttons */
-.button {
-  padding: 6px 12px;
+.admin-table th {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+
+.admin-table td strong {
+  color: #2c3e50;
+}
+
+.admin-table td em {
+  color: #555;
+  font-size: 0.85rem;
+}
+
+/* ====== BUTTON STYLES ====== */
+button {
+  padding: 8px 14px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 13px;
+  transition: all 0.2s ease;
 }
 
-.button-accept {
-  background-color: #007bff;
+/* Accept */
+button:not([disabled])[onClick*="handleAccept"] {
+  background: #27ae60;
   color: white;
 }
+button:not([disabled])[onClick*="handleAccept"]:hover {
+  background: #219150;
+}
 
-.button-accepted {
-  background-color: #6c757d;
+/* Reject / Delete */
+button[style*="red"],
+button[onClick*="handleDontAccept"] {
+  background: #e74c3c !important;
+  color: white !important;
+}
+button[style*="red"]:hover,
+button[onClick*="handleDontAccept"]:hover {
+  background: #c0392b !important;
+}
+
+/* Ready / Collected */
+button[onClick*="handleReady"] {
+  background: #f1c40f;
+  color: #2c3e50;
+}
+button[onClick*="handleReady"]:hover {
+  background: #d4ac0d;
+}
+
+button[onClick*="handleCollected"] {
+  background: #3498db;
   color: white;
+}
+button[onClick*="handleCollected"]:hover {
+  background: #2e86c1;
+}
+
+button:disabled {
+  background-color: #bdc3c7 !important;
+  color: #fff !important;
   cursor: not-allowed;
 }
 
-.button-yes {
-  background-color: #28a745;
+/* Enable Notification button */
+.admin-orders button:first-of-type {
+  background:#f39804;
   color: white;
 }
-
-.button-no {
-  background-color: #dc3545;
-  color: white;
+.admin-orders button:first-of-type:hover {
+  background:#f6bb5d;
 }
 
-.button-delete {
-  background-color: #e83e8c;
-  color: white;
+/* ====== FEEDBACK SECTION ====== */
+.admin-table td:last-child {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #333;
 }
 
-/* Status labels */
-.status-yes {
-  color: green;
-  font-weight: bold;
-}
-
-.status-no {
-  color: red;
-  font-weight: bold;
-}
-
-/* Mobile Responsive */
-@media (max-width: 768px) {
-  .admin-table,
-  .admin-table thead,
-  .admin-table tbody,
+/* ====== RESPONSIVE ====== */
+@media (max-width: 1024px) {
   .admin-table th,
-  .admin-table td,
-  .admin-table tr {
+  .admin-table td {
+    font-size: 0.85rem;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-orders {
+    padding: 20px;
+  }
+
+  .admin-table thead {
+    display: none;
+  }
+
+  .admin-table,
+  .admin-table tbody,
+  .admin-table tr,
+  .admin-table td {
     display: block;
     width: 100%;
   }
 
-  .admin-table thead {
-    display: none; /* hide table header */
-  }
-
   .admin-table tr {
     margin-bottom: 15px;
-    border: 1px solid #ddd;
+    border: 1px solid #eaeaea;
     border-radius: 10px;
     padding: 12px;
     background: #fff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
   }
 
   .admin-table td {
     border: none;
     display: flex;
     justify-content: space-between;
-    padding: 8px 0;
-    font-size: 14px;
+    align-items: center;
+    padding: 6px 0;
   }
 
   .admin-table td::before {
     content: attr(data-label);
-    font-weight: bold;
+    font-weight: 600;
+    color: #34495e;
     flex: 1;
-    color: #333;
-  }
-
-  .admin-table td:last-child {
-    border-bottom: none;
   }
 }

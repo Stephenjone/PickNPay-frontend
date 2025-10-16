@@ -1,12 +1,6 @@
 .footer {
   width: 100%;
   padding: 10px 0;
-  background: linear-gradient(
-    90deg,
-    rgba(187, 38, 26, 1) 0%,
-    rgba(215, 117, 44, 1) 35%,
-    rgba(245, 207, 70, 1) 100%
-  );
   text-align: center;
   position: relative;
   bottom: 0;
@@ -28,7 +22,7 @@
 .footer p {
   margin: 0;
   font-size: 22px;
-  color: #fff;
+  color: #333;
   font-family: 'Patrick Hand', cursive;
 }
 

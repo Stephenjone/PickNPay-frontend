@@ -16,7 +16,7 @@ import Items from './Components/Items';
 import Cart from './Components/Cart.js';
 import AdminOrders from './Components/AdminOrders.js';
 import MyOrders from './Components/MyOrders.js';
-//import Footer from './Components/Footer.js';
+import Footer from './Components/Footer.js';
 
 function AppWrapper() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,7 +41,7 @@ function AppWrapper() {
         <Route path="/myorders" element={<MyOrders />} />
       </Routes>
 
-      {/* {!hideLayout && <Footer />} */}
+       {!hideLayout && <Footer />} 
     </div>
   );
 }
