@@ -3,7 +3,7 @@ import io from "socket.io-client";
 import Navbar from "./Navbar";
 import "./MyOrders.css";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://picknpay-backend-5.onrender.com/api";
 const SOCKET_SERVER_URL = "https://picknpay-backend-5.onrender.com";
 
 export default function MyOrders() {
