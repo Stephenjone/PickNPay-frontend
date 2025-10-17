@@ -1,9 +1,7 @@
-// src/pages/Login.js
-
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import './Login.css';
-import { REACT_API_URL } from '../actionTypes/authActionTypes';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import "./Login.css";
+import { REACT_API_URL } from "../actionTypes/authActionTypes";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -38,13 +36,13 @@ const Login = () => {
       const res = await fetch(`${REACT_API_URL}/api/auth/login`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
 
       const text = await res.text();
-      console.log("Production raw response from server:", text);
+      console.log("Raw response from server:", text);
 
       let data;
       try {
@@ -76,36 +74,50 @@ const Login = () => {
 
   return (
     <div className="login-body">
-      <div className="content-wrapper">
+      <div className="login-container">
+        {/* Logo */}
         <img
-          src="/Assets/Logo1.png" 
+          src="/Assets/Logo1.png"
           alt="PickNPay Logo"
           className="logo1-img"
         />
 
+        {/* Login Form */}
         <form className="login-form" onSubmit={handleLogin}>
+      
+
           <input
             type="email"
             placeholder="Enter your Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+
           <input
             type="password"
             placeholder="Enter your Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+
           <button type="submit" disabled={loading}>
             {loading ? "Logging in..." : "Login"}
           </button>
 
+          {/* Messages */}
           {error && <p className="error">{error}</p>}
           {success && <p className="success">{success}</p>}
 
+          {/* Register & Forgot Password Links */}
           <div className="register-option">
-            <span className="not-registered-yet">Not registered yet? </span>
-            <Link to="/register" className="register">Register here</Link>
+            <span>Not registered yet? </span>
+            <Link to="/register" className="register">
+              Register here
+            </Link>
+          </div>
+
+          <div className="forgot-password-link" style={{ textAlign: "center", marginTop: "10px" }}>
+            <Link to="/resetpassword">Forgot Password?</Link>
           </div>
         </form>
       </div>

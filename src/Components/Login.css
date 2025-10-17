@@ -8,29 +8,30 @@ html {
 
 /* ---------- Page Background ---------- */
 .login-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #F3E2D4;
-  min-height: 100dvh;
   display: flex;
+  align-items: center;
   justify-content: center;
-  align-items: flex-start;
-  padding-top: 150px;
+  min-height: 100vh;
+  background: #F3E2D4;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+  margin-top: 0;
 }
 
-
-
 /* ---------- Wrapper ---------- */
-.content-wrapper {
+.login-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
 /* ---------- Logo ---------- */
 .logo1-img {
   display: block;
-  width: 200px;
+  width: 160px;
   height: auto;
   margin: 0 auto;
   cursor: pointer;
@@ -38,8 +39,8 @@ html {
 
 /* ---------- Form ---------- */
 .login-form {
-  width: min(92vw, 440px);
-  padding: clamp(18px, 4vw, 28px);
+  width: 100%;
+  padding: clamp(18px, 5vw, 28px);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.16);
   backdrop-filter: blur(12px) saturate(100%);
@@ -48,7 +49,7 @@ html {
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
   display: flex;
   flex-direction: column;
-  margin-top: 0px;
+  margin-top: 0;
 }
 
 /* ---------- Heading ---------- */
@@ -74,15 +75,9 @@ html {
   transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
 }
 
-.login-form input::placeholder {
-  color: rgba(0, 0, 0, 0.45);
-}
-
 .login-form input:focus {
   outline: none;
-  border-color: #F5CF46;
-  background: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 0 0 4px rgba(245, 207, 70, 0.25);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 /* ---------- Button ---------- */
@@ -99,34 +94,30 @@ html {
   transition: transform 0.2s ease, box-shadow 0.25s ease, opacity 0.2s;
 }
 
-.login-form button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.18);
-}
-
-.login-form button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.login-form button:hover {
+  background-color: #4338ca;
 }
 
 /* ---------- Messages ---------- */
-.error,
-.success {
-  color: #111;
+.login-form .error,
+.login-form .success {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
   text-align: center;
-  font-size: clamp(13px, 3.2vw, 15px);
-  padding: 8px 10px;
-  margin-top: 10px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.35);
 }
 
 .login-form .error {
-  color: #d62828;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
 }
 
 .login-form .success {
-  color: #2a9d8f;
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
 }
 
 /* ---------- Register Option ---------- */
@@ -144,21 +135,47 @@ html {
 }
 
 /* ---------- Responsive Styles ---------- */
-@media (max-width: 600px) {
-  .login-body {
-    padding-top: 100px;
-    align-items: flex-start;
-  }
 
-  .logo1-img {
-    width: 140px;
+/* Very small phones (max-width: 360px) */
+@media (max-width: 360px) {
+  .login-body {
+    padding: 10px;
   }
 
   .login-form {
     padding: 16px;
   }
+
+  .logo1-img {
+    width: 140px;
+    margin-top: 5px;
+    margin-bottom: 16px;
+  }
 }
 
+/* Small to medium phones */
+@media (min-width: 361px) and (max-width: 480px) {
+  .login-form {
+    padding: 18px;
+  }
+
+  .logo1-img {
+    width: 150px;
+  }
+}
+
+/* Larger phones and phablets */
+@media (min-width: 481px) and (max-width: 767px) {
+  .login-form {
+    padding: 22px;
+  }
+
+  .logo1-img {
+    width: 170px;
+  }
+}
+
+/* Large screens */
 @media (min-width: 1200px) {
   .login-form {
     width: 440px;
