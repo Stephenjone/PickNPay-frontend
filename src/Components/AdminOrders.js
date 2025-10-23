@@ -8,48 +8,64 @@ const API_BASE = `${REACT_API_URL}/api/orders`;
 const socket = io(REACT_API_URL, { transports: ["websocket"] });
 
 const AdminOrders = () => {
-  const [orders, setOrders] = useState(() => {
-    const stored = localStorage.getItem("adminOrders");
-    return stored ? JSON.parse(stored) : [];
-  });
+  const [orders, setOrders] = useState([]);
   const [error, setError] = useState("");
   const [processing, setProcessing] = useState({});
-  const [loading, setLoading] = useState(orders.length === 0);
+  const [loading, setLoading] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const alertSoundRef = useRef(null);
 
+  // Fetch all orders
+  const fetchOrders = async () => {
+    try {
+      const res = await fetch(API_BASE);
+      if (!res.ok) throw new Error(`Failed to fetch orders (${res.status})`);
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        localStorage.removeItem("adminOrders");
+        setOrders(data);
+        localStorage.setItem("adminOrders", JSON.stringify(data));
+      } else {
+        setOrders([]);
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setError(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update a single order in state (deep copy for items)
+  const updateOrderInState = (order) => {
+    setOrders((prev) => {
+      const updated = prev.map((o) =>
+        o._id === order._id ? { ...order, items: [...order.items] } : o
+      );
+      localStorage.setItem("adminOrders", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  // Socket setup
   useEffect(() => {
     alertSoundRef.current = new Audio("/notification.mp3");
     alertSoundRef.current.load();
 
-    const fetchOrders = async () => {
-      try {
-        const res = await fetch(API_BASE);
-        if (!res.ok) throw new Error(`Failed to fetch orders (${res.status})`);
-        const data = await res.json();
-        setOrders(Array.isArray(data) ? data : []);
-        localStorage.setItem("adminOrders", JSON.stringify(data));
-      } catch (err) {
-        console.error("Fetch error:", err);
-        setError(`Error: ${err.message}`);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (orders.length === 0) fetchOrders();
+    fetchOrders();
 
     const playAlertSound = () => {
-      if (!soundEnabled) return;
-      if (alertSoundRef.current) {
+      if (soundEnabled && alertSoundRef.current) {
         alertSoundRef.current.currentTime = 0;
-        alertSoundRef.current.play().catch((err) => console.error(err));
+        alertSoundRef.current
+          .play()
+          .catch((err) => console.warn("Sound play error:", err));
       }
     };
 
-    socket.on("connect", () => {
-      console.log("🔗 Admin socket connected:", socket.id);
-    });
+    socket.on("connect", () =>
+      console.log("🔗 Admin socket connected:", socket.id)
+    );
 
     socket.on("newOrder", (order) => {
       playAlertSound();
@@ -60,14 +76,19 @@ const AdminOrders = () => {
       });
     });
 
-    socket.on("orderUpdatedAdmin", (upd) => {
-      setOrders((prev) =>
-        prev.map((o) => (o._id === upd._id ? upd : o))
-      );
+    socket.on("orderUpdatedAdmin", (updatedOrder) => {
+      console.log("📦 Order updated via socket:", updatedOrder);
+      if (updatedOrder._id) {
+        updateOrderInState(updatedOrder);
+      }
     });
 
-    socket.on("orderDeleted", (del) => {
-      setOrders((prev) => prev.filter((o) => o._id !== del._id));
+    socket.on("orderDeleted", (deletedOrder) => {
+      setOrders((prev) => {
+        const filtered = prev.filter((o) => o._id !== deletedOrder._id);
+        localStorage.setItem("adminOrders", JSON.stringify(filtered));
+        return filtered;
+      });
     });
 
     return () => {
@@ -78,21 +99,14 @@ const AdminOrders = () => {
     };
   }, [soundEnabled]);
 
-  const updateOrderInState = (order) => {
-    setOrders((prev) => {
-      const updated = prev.map((o) => (o._id === order._id ? order : o));
-      localStorage.setItem("adminOrders", JSON.stringify(updated));
-      return updated;
-    });
-  };
-
+  // Mark order as accepted
   const handleAccept = async (orderId) => {
     try {
       setProcessing((prev) => ({ ...prev, [orderId]: true }));
       const res = await fetch(`${API_BASE}/${orderId}/accept`, { method: "PUT" });
-      if (!res.ok) throw new Error("Accept failed");
-      const body = await res.json();
-      updateOrderInState(body.order);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Accept failed");
+      updateOrderInState(data.order);
     } catch (err) {
       setError(`Accept error: ${err.message}`);
     } finally {
@@ -100,31 +114,35 @@ const AdminOrders = () => {
     }
   };
 
+  // Reject/Delete order
   const handleDontAccept = async (orderId) => {
     try {
       const res = await fetch(`${API_BASE}/${orderId}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Reject failed");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Reject failed");
       setOrders((prev) => {
-        const filtered = prev.filter((o) => o._id !== orderId);
-        localStorage.setItem("adminOrders", JSON.stringify(filtered));
-        return filtered;
+        const updated = prev.filter((o) => o._id !== orderId);
+        localStorage.setItem("adminOrders", JSON.stringify(updated));
+        return updated;
       });
     } catch (err) {
       setError(`Reject error: ${err.message}`);
     }
   };
 
+  // Mark order ready
   const handleReady = async (orderId) => {
     try {
       const res = await fetch(`${API_BASE}/${orderId}/ready`, { method: "PUT" });
-      if (!res.ok) throw new Error("Ready failed");
-      const body = await res.json();
-      updateOrderInState(body.order);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Ready failed");
+      updateOrderInState(data.order);
     } catch (err) {
       setError(`Ready error: ${err.message}`);
     }
   };
 
+  // Mark as collected
   const handleCollected = async (orderId, collected) => {
     try {
       const res = await fetch(`${API_BASE}/${orderId}/collected`, {
@@ -132,9 +150,9 @@ const AdminOrders = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ collected }),
       });
-      if (!res.ok) throw new Error("Collected failed");
-      const body = await res.json();
-      updateOrderInState(body.order);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Collected failed");
+      updateOrderInState(data.order);
     } catch (err) {
       setError(`Collected error: ${err.message}`);
     }
@@ -206,7 +224,11 @@ const AdminOrders = () => {
                           </button>
                           <button
                             onClick={() => handleDontAccept(order._id)}
-                            style={{ marginLeft: "0.5rem", backgroundColor: "red", color: "white" }}
+                            style={{
+                              marginLeft: "0.5rem",
+                              backgroundColor: "red",
+                              color: "white",
+                            }}
                           >
                             Don't Accept
                           </button>
@@ -219,14 +241,20 @@ const AdminOrders = () => {
                       {order.adminStatus === "Accepted" && (
                         <button onClick={() => handleReady(order._id)}>Yes</button>
                       )}
-                      {order.adminStatus === "Ready to Serve" && <button disabled>Yes</button>}
+                      {order.adminStatus === "Ready to Serve" && (
+                        <button disabled>Yes</button>
+                      )}
                     </td>
                     <td>
                       {(order.adminStatus === "Ready to Serve" ||
                         order.adminStatus === "Waiting for pickup") && (
                         <>
-                          <button onClick={() => handleCollected(order._id, true)}>Yes</button>
-                          <button onClick={() => handleCollected(order._id, false)}>No</button>
+                          <button onClick={() => handleCollected(order._id, true)}>
+                            Yes
+                          </button>
+                          <button onClick={() => handleCollected(order._id, false)}>
+                            No
+                          </button>
                         </>
                       )}
                       {order.adminStatus === "Collected" && <span>Collected</span>}
@@ -236,23 +264,32 @@ const AdminOrders = () => {
                         Delete / Reject
                       </button>
                     </td>
+
+                    {/* Feedback Display */}
                     <td>
-                      {order.items
-                        .filter((it) => it.rating != null)
-                        .map((it, idx) => (
-                          <div key={idx}>
-                            <strong>{it.name}</strong>: ⭐ {it.rating}/5 <br />
-                            <em>{it.feedback}</em>
-                          </div>
-                        ))}
+                      {order.items.map((item) => (
+                        <div key={item._id}>
+                          <strong>{item.name}</strong>:{" "}
+                          {item.rating != null ? (
+                            <>
+                              <span style={{ color: "orange" }}>
+                                {"★".repeat(item.rating)}
+                              </span>
+                              {"☆".repeat(5 - item.rating)}
+                              <br />
+                              <em>{item.feedback || "No comment"}</em>
+                            </>
+                          ) : (
+                            <span>Waiting for feedback</span>
+                          )}
+                        </div>
+                      ))}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="11" style={{ textAlign: "center" }}>
-                    No orders found.
-                  </td>
+                  <td colSpan="11">No orders found</td>
                 </tr>
               )}
             </tbody>

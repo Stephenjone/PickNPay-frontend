@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { REACT_API_URL } from "../actionTypes/authActionTypes"; // ✅ same as Login.js
 import "./Register.css";
-
-const API_BASE = "https://picknpay-backend-5.onrender.com";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -24,9 +23,16 @@ const Register = () => {
       return;
     }
 
+    if (!REACT_API_URL) {
+      console.error("REACT_API_URL is not defined!");
+      setError("Internal error: API URL not set.");
+      return;
+    }
+
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/auth/register`, {
+      console.log("Using backend URL:", REACT_API_URL);
+      const res = await fetch(`${REACT_API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
@@ -49,8 +55,10 @@ const Register = () => {
       setEmail("");
       setPassword("");
 
+      // redirect to login after success
       setTimeout(() => navigate("/login"), 1000);
     } catch (err) {
+      console.error("Register error:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -60,29 +68,29 @@ const Register = () => {
   return (
     <div className="register-body">
       <div className="register-container">
-      
+        {/* Logo */}
         <img
           src="/Assets/Logo1.png"
           alt="PickNPay Logo"
           className="logo1-img"
         />
 
-        
+        {/* Register Form */}
         <form className="register-form" onSubmit={handleRegister}>
-         
-
           <input
             type="text"
             placeholder="Enter your Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
+
           <input
             type="email"
             placeholder="Enter your Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+
           <input
             type="password"
             placeholder="Enter your Password"

@@ -6,13 +6,12 @@
   font-family: 'Roboto', sans-serif;
 }
 
-
 /* No orders message */
 .no-orders {
   text-align: center;
   color: #999;
   font-size: 1rem;
-  padding-top:50px;
+  padding-top: 50px;
 }
 
 /* Order Card */
@@ -30,11 +29,10 @@
   transform: translateY(-3px);
 }
 
-/* Order Info */
 .order-id,
 .order-token,
 .order-total {
-  font-weight: 500;
+  font-weight: 400;
   margin: 0.3rem 0;
   font-size: 0.95rem;
 }
@@ -44,13 +42,33 @@
   margin: 0.5rem 0;
 }
 
+.order-items {
+  display: flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
 .order-item-block {
   display: flex;
-  flex-direction: column;
-  margin-bottom: 0.6rem;
-  padding: 0.5rem;
-  border-bottom: 1px solid #f0f0f0;
+  align-items: center;
+  white-space: nowrap;
 }
+
+
+.order-item-name {
+  font-weight: 400;
+  flex-shrink: 0;
+}
+
+.order-item-qty-price {
+  display: flex;
+  gap: 8px;
+  color: #555;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
 
 /* Feedback Display */
 .feedback-display {
@@ -161,5 +179,4 @@
   .feedback-form button {
     font-size: 0.85rem;
   }
-
 }

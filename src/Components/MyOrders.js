@@ -15,10 +15,9 @@ export default function MyOrders() {
   const user = userStr ? JSON.parse(userStr) : null;
   const email = user?.email || "";
 
-  // ✅ Fetch all user orders
+  // Fetch user orders
   const fetchOrders = async () => {
     if (!email) return;
-
     try {
       const res = await fetch(`${API_BASE}/orders/user/${encodeURIComponent(email)}`);
       if (!res.ok) {
@@ -33,7 +32,7 @@ export default function MyOrders() {
     }
   };
 
-  // ✅ Load orders + listen for socket updates
+  // WebSocket setup
   useEffect(() => {
     if (!email) return;
 
@@ -41,12 +40,13 @@ export default function MyOrders() {
 
     const newSocket = io(SOCKET_SERVER_URL, { transports: ["websocket"] });
     setSocket(newSocket);
-
     newSocket.emit("joinRoom", email);
 
     const updateOrder = (updatedOrder) => {
       setOrders((prevOrders) =>
-        prevOrders.map((order) => (order._id === updatedOrder._id ? updatedOrder : order))
+        prevOrders.map((order) =>
+          order._id === updatedOrder._id ? updatedOrder : order
+        )
       );
     };
 
@@ -57,16 +57,24 @@ export default function MyOrders() {
         setOrders((prevOrders) => [newOrder, ...prevOrders]);
       }
     });
+    newSocket.on("orderRejected", (data) => {
+      alert(data.message || "Oops! Your order cannot be accepted right now, please try again later.");
+      fetchOrders();
+    });
+
+    const interval = setInterval(fetchOrders, 1000);
 
     return () => {
+      clearInterval(interval);
       newSocket.off("orderUpdated", updateOrder);
       newSocket.off("orderAccepted", updateOrder);
+      newSocket.off("orderRejected");
       newSocket.off("newOrder");
       newSocket.disconnect();
     };
   }, [email]);
 
-  // ✅ Handle input change for feedback & rating
+  // Handle rating or comment input change
   const handleInputChange = (orderId, itemId, field, value) => {
     setFeedbackInputs((prev) => ({
       ...prev,
@@ -80,7 +88,7 @@ export default function MyOrders() {
     }));
   };
 
-  // ✅ Submit feedback to backend
+  // Submit feedback
   const submitFeedback = async (orderId, itemId) => {
     const feedback = feedbackInputs[orderId]?.[itemId]?.feedback || "";
     const rating = feedbackInputs[orderId]?.[itemId]?.rating;
@@ -91,6 +99,9 @@ export default function MyOrders() {
     }
 
     try {
+      console.log("Submitting feedback:", { orderId, itemId, rating, feedback });
+
+      // ✅ The requested fetch call:
       const res = await fetch(`${API_BASE}/orders/${orderId}/item/feedback`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -103,13 +114,15 @@ export default function MyOrders() {
       }
 
       const data = await res.json();
+      console.log("Feedback saved:", data);
+
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
           order._id === data.order._id ? data.order : order
         )
       );
 
-      alert("Feedback submitted!");
+      alert("Feedback submitted successfully!");
       setFeedbackInputs((prev) => ({
         ...prev,
         [orderId]: {
@@ -145,9 +158,13 @@ export default function MyOrders() {
               <strong>Items:</strong>
               {order.items.map((item, i) => (
                 <div key={i} className="order-item-block">
-                  {item.name} × {item.quantity} — ₹{item.price?.toFixed(2)}
+                  <span className="order-item-name">{item.name}</span>
+                  <div className="order-item-qty-price">
+                    <span> × {item.quantity}</span>
+                    <span>₹{item.price?.toFixed(2)}</span>
+                  </div>
 
-                  {order.adminStatus === "Collected" ? (
+                  {order.adminStatus?.toLowerCase() === "collected" ? (
                     item.rating ? (
                       <div className="feedback-display">
                         <span className="read-only-stars">
@@ -201,11 +218,7 @@ export default function MyOrders() {
                         </button>
                       </div>
                     )
-                  ) : (
-                    <p className="feedback-disabled">
-                      Feedback available after order is collected
-                    </p>
-                  )}
+                  ) : null}
                 </div>
               ))}
             </div>
@@ -213,6 +226,7 @@ export default function MyOrders() {
             <p className="order-total">
               <strong>Total:</strong> ₹{order.totalAmount?.toFixed(2) ?? "0.00"}
             </p>
+
             <div className="order-status-line">
               <strong>Status: </strong>
               <span className={`order-status ${order.adminStatus?.toLowerCase()}`}>
