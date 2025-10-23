@@ -1,4 +1,3 @@
-// src/Components/firebase.js
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
@@ -12,19 +11,26 @@ const firebaseConfig = {
   measurementId: "G-JD0ZJXEBKB",
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
-// Request permission and get FCM token
-export const requestForToken = async () => {
+// Request FCM token and send to backend
+export const requestForToken = async (email) => {
   try {
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
       const token = await getToken(messaging, {
         vapidKey: "BGq2b5ugSKXnei0JunTzIqREZ-YS-YRUvfCiF2doHXIMyRKI1vG4IKJ9f61lik1EAxC-QiEomTG_u7tb9a7D8KQ",
       });
-      console.log("✅ FCM Token:", token);
+      if (token) {
+        console.log("✅ FCM Token:", token);
+        // Send token to backend
+        await fetch(`${process.env.REACT_APP_API}/orders/fcm-token`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, fcmToken: token }),
+        });
+      }
       return token;
     } else {
       console.warn("❌ Notification permission denied.");
@@ -34,16 +40,9 @@ export const requestForToken = async () => {
   }
 };
 
-// Wrap onMessage so it returns a cleanup function
+// Foreground messages
 export const onMessageListener = (callback) => {
-  const handler = (payload) => callback(payload);
-  onMessage(messaging, handler);
-
-  // Return cleanup function for useEffect
-  return () => {
-    // Firebase Messaging doesn't provide a real unsubscribe, so we can ignore it
-    console.log("ℹ️ onMessage listener removed (no-op cleanup).");
-  };
+  onMessage(messaging, callback);
 };
 
 export { messaging };

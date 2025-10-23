@@ -1,12 +1,9 @@
-// src/App.js
 import './App.css';
 import { useState, useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import io from 'socket.io-client';
 
-// Firebase imports
-import { messaging, requestForToken, onMessageListener } from './Components/firebase';
-
-// Pages/Components
+import { requestForToken, onMessageListener } from './Components/firebase';
 import Login from './Components/Login';
 import Register from './Components/Register';
 import Dashboard from './Components/Dashboard';
@@ -16,36 +13,35 @@ import Cart from './Components/Cart';
 import AdminOrders from './Components/AdminOrders';
 import MyOrders from './Components/MyOrders';
 import ResetPassword from './Components/resetPassword';
-// import Footer from './Components/Footer'; // Optional
 
 function AppWrapper() {
   const [searchTerm, setSearchTerm] = useState('');
   const location = useLocation();
+  const [currentUserEmail, setCurrentUserEmail] = useState(null);
 
-  // Store FCM token in state or send to backend here
-  const [fcmToken, setFcmToken] = useState(null);
+  const socket = io(process.env.REACT_APP_API, { transports: ["websocket"] });
 
   useEffect(() => {
-    // Request permission and get FCM token
-    requestForToken().then((token) => {
-      if (token) {
-        setFcmToken(token);
-        // TODO: Send token to backend to save it for the user
-      }
-    });
+    // Request FCM token
+    if (currentUserEmail) requestForToken(currentUserEmail);
 
-    // Listen for foreground messages
+    // Join user room for Socket.IO
+    if (currentUserEmail) socket.emit("joinRoom", currentUserEmail);
+    return () => {
+      if (currentUserEmail) socket.emit("leaveRoom", currentUserEmail);
+    };
+  }, [currentUserEmail]);
+
+  // Foreground push notifications
+  useEffect(() => {
     const unsubscribe = onMessageListener((payload) => {
-      console.log('📩 Message received:', payload);
       if (payload.notification) {
         alert(`Notification: ${payload.notification.title} - ${payload.notification.body}`);
       }
     });
-
     return () => unsubscribe();
   }, []);
 
-  // Routes where Navbar/Footer should be hidden
   const hideLayoutRoutes = ['/login', '/register', '/resetpassword'];
   const hideLayout =
     hideLayoutRoutes.includes(location.pathname) ||
@@ -54,30 +50,25 @@ function AppWrapper() {
   return (
     <div className="app-container">
       {!hideLayout && <Navbar searchTerm={searchTerm} onSearchChange={setSearchTerm} />}
-
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Login setCurrentUserEmail={setCurrentUserEmail} />} />
         <Route path="/register" element={<Register />} />
         <Route path="/resetpassword" element={<ResetPassword />} />
         <Route path="/dashboard" element={<Items searchTerm={searchTerm} />} />
         <Route path="/items" element={<Items searchTerm={searchTerm} />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/adminorders" element={<AdminOrders />} />
-        <Route path="/myorders" element={<MyOrders />} />
+        <Route path="/myorders" element={<MyOrders socket={socket} currentUserEmail={currentUserEmail} />} />
       </Routes>
-
-      {/* {!hideLayout && <Footer />} */}
     </div>
   );
 }
 
-function App() {
+export default function App() {
   return (
     <HashRouter>
       <AppWrapper />
     </HashRouter>
   );
 }
-
-export default App;
