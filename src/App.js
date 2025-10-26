@@ -32,15 +32,23 @@ function AppWrapper() {
     };
   }, [currentUserEmail]);
 
-  // Foreground push notifications
-  useEffect(() => {
-    const unsubscribe = onMessageListener((payload) => {
-      if (payload.notification) {
-        alert(`Notification: ${payload.notification.title} - ${payload.notification.body}`);
+ useEffect(() => {
+  const unsubscribeMessage = onMessageListener()
+    .then((payload) => {
+      if (payload?.notification) {
+        alert(
+          `Notification: ${payload.notification.title} - ${payload.notification.body}`
+        );
       }
-    });
-    return () => unsubscribe();
-  }, []);
+    })
+    .catch((err) => console.log("FCM listener error:", err));
+
+  // nothing to unsubscribe, just cleanup placeholder
+  return () => {
+    // no unsubscribe needed
+  };
+}, []);
+
 
   const hideLayoutRoutes = ['/login', '/register', '/resetpassword'];
   const hideLayout =

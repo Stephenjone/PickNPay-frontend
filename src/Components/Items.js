@@ -12,7 +12,6 @@ const Items = ({ searchTerm }) => {
   const [filteredItems, setFilteredItems] = useState([]);
   const [cartItems, setCartItems] = useState({});
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -188,6 +187,29 @@ const Items = ({ searchTerm }) => {
 
   return (
     <div className="items-page">
+  
+
+  <div className="banner-content">
+    <img
+      src="./Assets/Logo.png"
+      alt="PickNPay Logo"
+      className="banner-logo"
+    />
+    <div className="banner-text">
+      <h1>Skip the Queue, Savor the Flavor!</h1>
+      <p>
+        PickNPay makes office dining seamless. Employees order their meals
+        ahead,<br />the shop prepares it instantly, and you collect and
+        enjoy—simple, fast, and tasty.
+      </p>
+    </div>
+  </div>
+
+  
+
+
+
+      {/* ================== Items Container ================== */}
       <div className="items-container">
         {loading ? (
           <p>Loading items...</p>

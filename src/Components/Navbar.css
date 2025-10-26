@@ -1,440 +1,298 @@
-
 .navbar {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  background: linear-gradient(
-    90deg,
-    rgba(187, 38, 26, 1) 0%,
-    rgba(215, 117, 44, 1) 35%,
-    rgba(245, 207, 70, 1) 100%
-  );
-  padding: 12px 20px;
-  color: #fff;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   width: 100%;
-  position: fixed;
-  top: 0;
-  z-index: 100;
-  font-family: "Patrick Hand", cursive;
-  flex-wrap: nowrap;
-}
-
-
-.nav-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-
-.logo-img {
-  height: 50px;
-  width: auto;
-  cursor: pointer;
-  user-select: none;
-}
-
-
-.nav-search-input {
-  flex: 1;
-  min-width: 200px;
-  max-width: 500px;
-  height: 40px;
-  padding: 8px 12px;
-  font-size: 16px;
-  border-radius: 6px;
-  border: none;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-  outline: none;
-  color: #333;
-  transition: box-shadow 0.3s ease;
-}
-
-.nav-search-input::placeholder {
-  color: #999;
-}
-
-.nav-search-input:focus {
-  box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.8);
-}
-
-
-.nav-buttons {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.nav-btn {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  padding: 8px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-
-.nav-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
-  color: #111;
-}
-
-
-.logout-btn {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 16px;
-}
-
-.logout-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  color: #111;
-}
-
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 22px;
-  color: #fff;
-}
-
-.user-info span {
-  font-weight: 500;
-}
-
-
-.mobile-user-icon {
-  display: none;
-  font-size: 26px;
-  color: #fff;
-  cursor: pointer;
-  align-items: center;
-  gap: 8px;
-  user-select: none;
-}
-
-.mobile-username {
-  display: none;
-  font-weight: 500;
-  font-size: 18px;
-}
-
-
-.mobile-menu {
-  display: none;
-  flex-direction: column;
-  width: 100%;
-  background: rgba(0, 0, 0, 0.92);
-  padding: 12px 0;
-  border-radius: 8px;
-  margin-top: 10px;
-  transition: all 0.3s ease;
-}
-
-.mobile-menu.show {
-  display: flex;
-}
-
-.mobile-menu .nav-btn,
-.mobile-menu .logout-btn {
-  width: 90%;
-  margin: 6px auto;
-  text-align: center;
-  font-size: 15px;
-  padding: 10px;
-  border-radius: 6px;
-}
-
-
-
-
-@media (max-width: 992px) {
-  .navbar {
-    padding: 10px 16px;
-  }
-
-  .nav-btn,
-  .logout-btn {
-    font-size: 14px;
-    padding: 6px 10px;
-  }
-
-  .nav-search-input {
-    font-size: 15px;
-    min-width: 200px;
-    max-width: 500px;
-  }
-
-  .mobile-user-icon {
-    display: flex;
-    font-size: 24px;
-  }
-
-  .mobile-username {
-    display: inline;
-    font-size: 18px;
-  }
-}
-
-/* Tablets and below */
-@media (max-width: 768px) {
-  .desktop-only {
-    display: none;
-  }
-
-  .nav-header {
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .navbar {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 8px 12px;
-  }
-
-  .nav-search-input {
-    min-width: 100px;
-    max-width:200px;
-    height:30px;
-  }
-}
-
-/* Phones (small) */
-@media (max-width: 500px) {
-  .logo-img {
-    height: 40px;
-  }
-
-  .mobile-user-icon {
-    font-size: 22px;
-  }
-
-  .mobile-username {
-    font-size: 18px;
-  }
-
-  .nav-search-input {
-    font-size: 14px;
-    padding: 6px 10px;
-  }
-
-  .nav-btn,
-  .logout-btn {
-    font-size: 13px;
-    padding: 5px 8px;
-  }
-}
-
-/* Very Small Devices (≤375px) */
-@media (max-width: 375px) {
-  .nav-search-input {
-    font-size: 13px;
-    padding: 5px 8px;
-  }
-
-  .mobile-user-icon {
-    font-size: 20px;
-  }
-
-  .mobile-username {
-    font-size: 16px;
-  }
-}
-
-
-/* ========== iPad Portrait (768px) ========== */
-@media screen and (width: 768px) {
-  .navbar {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 10px 16px;
-  }
-
-  .desktop-only {
-    display: none;
-  }
-
-  .nav-header {
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  .nav-search-input {
-    max-width: 300px;
-    font-size: 15px;
-    height: 36px;
-  }
-
-  .desktop-only {
-    display: none;
-  }
-
-  .mobile-user-icon {
-    display: flex;
-  }
-
-  .mobile-username {
-    display: inline;
-  }
-}
-
-/* ========== iPad Landscape (1024px) and small laptops ========== */
-@media screen and (max-width: 1024px) and (min-width: 769px) {
-  .navbar {
-    padding: 10px 18px;
-  }
-
-  .desktop-only {
-    display: none;
-  }
-
-  .nav-search-input {
-    max-width: 400px;
-    font-size: 16px;
-  }
-
-  .nav-btn,
-  .logout-btn {
-    font-size: 15px;
-    padding: 7px 12px;
-  }
-
-  .mobile-user-icon {
-    display: flex;
-  }
-
-  .mobile-username {
-    display: inline;
-  }
-}
-
-/* ========== iPad Pro 11" Landscape (1194px) ========== */
-@media screen and (max-width: 1194px) and (min-width: 1025px) {
-  .navbar {
-    padding: 10px 20px;
-  }
-  .desktop-only {
-    display: none;
-  }
-
-  .nav-search-input {
-    max-width: 450px;
-  }
-
-  .nav-btn,
-  .logout-btn {
-    font-size: 16px;
-    padding: 8px 14px;
-  }
-}
-
-
-.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  font-family: "Playpen Sans", cursive;
+  background: #f39804;
+}
+
+/* Navbar inner container */
+.container.nav-header {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  box-sizing: border-box;
+}
+
+/* =====================================
+   LEFT SECTION (HOME ICON)
+===================================== */
+.home-icon {
+  display: flex;
+  align-items: center;
+  font-size: 22px;
+  color: #fff;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.home-icon:hover {
+  color: #0056b3;
+}
+
+/* =====================================
+   SEARCH BAR
+===================================== */
+.nav-search-input {
+  flex: 1;
+  margin: 0 20px;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.nav-search-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.25);
+}
+
+/* =====================================
+   RIGHT SECTION (BUTTONS)
+===================================== */
+.nav-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-btn,
+.nav-btn-myorders,
+.nav-btn-cart {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.3s ease;
+}
+
+.nav-btn:hover,
+.nav-btn-myorders:hover,
+.nav-btn-cart:hover {
+  background-color: #0056b3;
+}
+
+/* =====================================
+   USER INFO & LOGOUT
+===================================== */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #fff;
+}
+
+.logout-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #a71d2a;
+}
+
+/* =====================================
+   MOBILE VIEW ADJUSTMENTS
+===================================== */
+.mobile-user-icon {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.mobile-username {
+  font-size: 14px;
+}
+
+/* Hide elements on mobile */
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+
+  .container.nav-header {
+    padding: 10px 14px;
+  }
+
+  .nav-search-input {
+    margin: 0 10px;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .mobile-user-icon {
+    display: flex;
+  }
+
+  .navbar {
+    height: auto;
+  }
+}
+
+/* =====================================
+   MOBILE DROPDOWN MENU (USER ICON)
+===================================== */
+.mobile-user-menu {
+  position: absolute;
+  top: 65px;
+  right: 15px;
+  background-color: #ffffff;
+  border-radius: 14px;
+  width: 220px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  z-index: 999;
+  padding: 10px;
+  animation: slideDown 0.25s ease-in-out;
+}
+
+.mobile-user-menu button {
+  background: none;
+  border: none;
+  color: #333;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.25s ease;
+}
+
+.mobile-user-menu button:hover {
+  background-color: #f4f4f4;
+}
+
+.mobile-user-menu .logout-btn {
+  color: #e74c3c;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =====================================
+   MODAL (Add Item Form)
+===================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+  z-index: 2000;
 }
 
 .modal-content {
   background: #fff;
-  padding: 20px;
-  border-radius: 10px;
+  border-radius: 16px;
+  padding: 25px;
   width: 90%;
-  max-width: 500px;
+  max-width: 420px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+}
+
+.add-item-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .add-item-form input,
 .add-item-form select {
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-}
-
-.file-upload {
-  margin-top: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.custom-file-upload {
-  background-color: #007bff;
-  color: white;
-  padding: 8px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.file-upload input[type="file"] {
-  display: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
 }
 
 .form-actions {
-  margin-top: 15px;
   display: flex;
   justify-content: space-between;
-}
-
-.submit-btn,
-.cancel-btn {
-  padding: 10px 16px;
-  font-size: 16px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-left: 5px;
+  margin-top: 12px;
 }
 
 .submit-btn {
   background-color: #28a745;
-  color: white;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.25s ease;
+}
+
+.submit-btn:hover {
+  background-color: #218838;
 }
 
 .cancel-btn {
-  background-color: #dc3545;
-  color: white;
+  background-color: #ccc;
+  color: #333;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.25s ease;
 }
 
+.cancel-btn:hover {
+  background-color: #999;
+}
+
+/* =====================================
+   UTILITIES
+===================================== */
 .error {
   color: red;
-  font-size: 14px;
-  margin: 8px 0;
+  text-align: center;
+  margin-top: 10px;
 }
 
-
 .glass-card {
-  background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* =====================================
+   DESKTOP ONLY - Hide mobile menu
+===================================== */
+@media (min-width: 769px) {
+  .mobile-user-menu {
+    display: none;
+  }
 }
