@@ -197,6 +197,7 @@ const Items = ({ searchTerm }) => {
     />
     <div className="banner-text">
       <h1>Skip the Queue, Savor the Flavor!</h1>
+      <hr></hr>
       <p>
         PickNPay makes office dining seamless. Employees order their meals
         ahead,<br />the shop prepares it instantly, and you collect and
@@ -237,13 +238,13 @@ const Items = ({ searchTerm }) => {
                       {!isAdmin &&
                         (qty > 0 ? (
                           <div className="quantity-controls">
-                            <button
+                            <button className="decrement"
                               onClick={() => handleDecrease(item._id || item.id)}
                             >
                               -
                             </button>
                             <span>{qty}</span>
-                            <button
+                            <button className="increment"
                               onClick={() => handleIncrease(item._id || item.id)}
                             >
                               +

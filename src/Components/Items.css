@@ -135,6 +135,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  
 }
 
 .quantity-controls button {
@@ -149,6 +150,33 @@
   background-color: #4caf50;
 }
 
+
+.quantity-controls .increment {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #4caf50;
+  border-radius: 8px;
+}
+
+.quantity-controls .decrement {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: red;
+  border-radius: 8px;
+}
+
 .quantity-controls button:hover {
   background-color: #43a047;
 }
@@ -157,6 +185,7 @@
   font-size: 1rem;
   min-width: 25px;
   text-align: center;
+  
 }
 
 /* ================== Messages ================== */
@@ -171,6 +200,15 @@
   font-size: 1.1rem;
   color: #666;
 }
+
+hr {
+  border: none;            /* Remove default border */
+  height: 3px;             /* Set thickness */
+  background-color: #fff;  /* Set color */
+  margin: 10px 0;          /* Optional spacing */
+  border-radius: 2px;      /* Optional for smoother edges */
+}
+
 
 /* ================== Mobile Responsiveness ================== */
 

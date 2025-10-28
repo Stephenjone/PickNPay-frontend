@@ -335,22 +335,22 @@ const Cart = () => {
                   />
                   <div>
                     <h3>{name}</h3>
-                    <p>
+                    <p className="price-qty">
                       ₹{price.toFixed(2)} × {quantity} = ₹{(price * quantity).toFixed(2)}
                     </p>
                     <div className="quantity-controls">
-                      <button
+                      <button 
                         onClick={() => {
                           if (quantity > 1) updateItemQuantity(_id, quantity - 1);
                         }}
-                        className="quantity-btn"
+                        className="quantity-decrement-btn"
                       >
                         -
                       </button>
                       <span className="quantity">{quantity}</span>
                       <button
                         onClick={() => updateItemQuantity(_id, quantity + 1)}
-                        className="quantity-btn"
+                        className="quantity-increment-btn"
                       >
                         +
                       </button>

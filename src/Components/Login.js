@@ -75,14 +75,12 @@ const Login = () => {
   return (
     <div className="login-body">
       <div className="login-container">
-        {/* Logo */}
         <img
           src="/Assets/Logo1.png"
           alt="PickNPay Logo"
           className="logo1-img"
         />
 
-        {/* Login Form */}
         <form className="login-form" onSubmit={handleLogin}>
       
 

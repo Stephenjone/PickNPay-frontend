@@ -1,22 +1,32 @@
 /* ---------- Global Reset ---------- */
 *, *::before, *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
-html {
-  -webkit-text-size-adjust: 100%;
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 /* ---------- Page Background ---------- */
 .login-body {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 100vh;
+  justify-content: flex-start; /* Move content toward the top */
+  height: 100vh;
+  width: 100vw;
   background: #F3E2D4;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  padding: 20px;
-  margin-top: 0;
+  margin: 0;
+  padding-top: 150px; /* Adjust this value to move more or less */
+  overflow: hidden;
 }
+
 
 /* ---------- Wrapper ---------- */
 .login-container {
@@ -25,7 +35,10 @@ html {
   align-items: center;
   width: 100%;
   max-width: 500px;
-  margin: 0 auto;
+  padding-left:10px;
+  padding-right:10px;
+  padding-top:0;
+  margin:0;
 }
 
 /* ---------- Logo ---------- */
@@ -35,7 +48,10 @@ html {
   height: auto;
   margin: 0 auto;
   cursor: pointer;
+  padding-top:30px;
+  padding-bottom:0px;
 }
+
 
 /* ---------- Form ---------- */
 .login-form {
@@ -135,13 +151,7 @@ html {
 }
 
 /* ---------- Responsive Styles ---------- */
-
-/* Very small phones (max-width: 360px) */
 @media (max-width: 360px) {
-  .login-body {
-    padding: 10px;
-  }
-
   .login-form {
     padding: 16px;
   }
@@ -153,7 +163,6 @@ html {
   }
 }
 
-/* Small to medium phones */
 @media (min-width: 361px) and (max-width: 480px) {
   .login-form {
     padding: 18px;
@@ -164,7 +173,6 @@ html {
   }
 }
 
-/* Larger phones and phablets */
 @media (min-width: 481px) and (max-width: 767px) {
   .login-form {
     padding: 22px;
@@ -175,7 +183,6 @@ html {
   }
 }
 
-/* Large screens */
 @media (min-width: 1200px) {
   .login-form {
     width: 440px;
@@ -185,3 +192,20 @@ html {
     width: 220px;
   }
 }
+
+/* Make logo and form visually joined on mobile */
+@media (max-width: 767px) {
+  .login-body {
+    padding-top: 150px; /* less space above */
+  }
+
+  .logo1-img {
+    padding-top: 0;
+    margin-bottom: 5px; /* remove gap below logo */
+  }
+
+  .login-form {
+    margin-top: -5px; /* small overlap to visually join */
+  }
+}
+

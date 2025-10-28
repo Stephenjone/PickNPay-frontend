@@ -75,6 +75,9 @@
 /* ==========================
    Quantity Controls
 ========================== */
+/* ==========================
+   Quantity Controls
+========================== */
 .quantity-controls {
   display: flex;
   align-items: center;
@@ -82,34 +85,54 @@
   margin: 10px 0;
 }
 
+/* Base button styling */
 .quantity-controls button {
   width: 34px;
   height: 34px;
   border: none;
   border-radius: 8px;
-  background: #e6e6e6;
   font-size: 1.2rem;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #333;
+  color: #fff;
 }
 
-.quantity-controls button:hover {
-  background: #d0d0d0;
+/* + Button (Green) */
+.quantity-controls .quantity-increment-btn {
+  background-color: #4caf50;
 }
 
+.quantity-controls .quantity-increment-btn:hover {
+  background-color: #43a047;
+}
+
+/* – Button (Red) */
+.quantity-controls .quantity-decrement-btn {
+  background-color: #f44336;
+}
+
+.quantity-controls .quantity-decrement-btn:hover {
+  background-color: #e53935;
+}
+
+/* Disabled state */
 .quantity-controls button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
+/* Quantity text */
 .quantity-controls span {
   min-width: 24px;
   text-align: center;
   font-size: 1rem;
   font-weight: 600;
   color: #222;
+}
+
+.price-qty{
+  font-weight:bold;
 }
 
 /* ==========================
