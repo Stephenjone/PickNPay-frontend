@@ -22,10 +22,9 @@ function AppWrapper() {
   const socket = io(process.env.REACT_APP_API, { transports: ["websocket"] });
 
   useEffect(() => {
-    // Request FCM token
+   
     if (currentUserEmail) requestForToken(currentUserEmail);
 
-    // Join user room for Socket.IO
     if (currentUserEmail) socket.emit("joinRoom", currentUserEmail);
     return () => {
       if (currentUserEmail) socket.emit("leaveRoom", currentUserEmail);
@@ -43,9 +42,9 @@ function AppWrapper() {
     })
     .catch((err) => console.log("FCM listener error:", err));
 
-  // nothing to unsubscribe, just cleanup placeholder
+
   return () => {
-    // no unsubscribe needed
+
   };
 }, []);
 
