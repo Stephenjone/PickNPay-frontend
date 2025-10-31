@@ -19,7 +19,10 @@ function AppWrapper() {
   const location = useLocation();
   const [currentUserEmail, setCurrentUserEmail] = useState(null);
 
-  const socket = io(process.env.REACT_APP_API, { transports: ["websocket"] });
+  const socket = io("https://picknpay-backend-5.onrender.com", {
+  transports: ["websocket"],
+});
+
 
   useEffect(() => {
    
