@@ -20,44 +20,47 @@ const messaging = getMessaging(app);
 export const requestForToken = async (email) => {
   try {
     const permission = await Notification.requestPermission();
-    if (permission === "granted") {
-      const token = await getToken(messaging, {
-        vapidKey:
-          "BGq2b5ugSKXnei0JunTzIqREZ-YS-YRUvfCiF2doHXIMyRKI1vG4IKJ9f61lik1EAxC-QiEomTG_u7tb9a7D8KQ",
-      });
-
-      if (token) {
-        console.log("✅ FCM Token:", token);
-
-        // Send token to backend
-        await fetch(`${process.env.REACT_APP_API}/orders/fcm-token`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, fcmToken: token }),
-        });
-      } else {
-        console.warn("⚠️ Failed to get FCM token.");
-      }
-
-      return token;
-    } else {
+    if (permission !== "granted") {
       console.warn("❌ Notification permission denied by user.");
+      return null;
     }
+
+    const token = await getToken(messaging, {
+      vapidKey:
+        "BGq2b5ugSKXnei0JunTzIqREZ-YS-YRUvfCiF2doHXIMyRKI1vG4IKJ9f61lik1EAxC-QiEomTG_u7tb9a7D8KQ",
+    });
+
+    if (!token) {
+      console.warn("⚠️ Failed to get FCM token.");
+      return null;
+    }
+
+    console.log("✅ FCM Token generated:", token);
+
+    // Send token to backend
+    const backendUrl = process.env.REACT_APP_API || "https://picknpay-backend-5.onrender.com";
+    const response = await fetch(`${backendUrl}/api/orders/fcm-token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, fcmToken: token }),
+    });
+
+    if (!response.ok) throw new Error("Failed to send FCM token to backend");
+    console.log("📩 Token successfully sent to backend");
+    return token;
   } catch (err) {
     console.error("❌ Error getting FCM token:", err);
+    return null;
   }
 };
 
-// ✅ Foreground push notification listener (Promise-based)
+// ✅ Foreground push notification listener
 export const onMessageListener = () =>
-  new Promise((resolve, reject) => {
-    try {
-      onMessage(messaging, (payload) => {
-        resolve(payload);
-      });
-    } catch (err) {
-      reject(err);
-    }
+  new Promise((resolve) => {
+    onMessage(messaging, (payload) => {
+      console.log("📨 Foreground message received:", payload);
+      resolve(payload);
+    });
   });
 
 export { messaging };
