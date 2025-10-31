@@ -38,14 +38,17 @@ function AppWrapper() {
   const unsubscribeMessage = onMessageListener()
     .then((payload) => {
       if (payload?.notification) {
-        const { title, body } = payload.notification;
-        console.log("📬 Foreground notification:", payload);
-        new Notification(title, { body, icon: "/logo192.png" });
+        alert(
+          `Notification: ${payload.notification.title} - ${payload.notification.body}`
+        );
       }
     })
     .catch((err) => console.log("FCM listener error:", err));
 
-  return () => unsubscribeMessage;
+
+  return () => {
+
+  };
 }, []);
 
 
