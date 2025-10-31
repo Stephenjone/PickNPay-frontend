@@ -19,7 +19,7 @@ function AppWrapper() {
   const location = useLocation();
   const [currentUserEmail, setCurrentUserEmail] = useState(null);
 
-  const socket = io("https://picknpay-backend-5.onrender.com", {
+  const socket = io("https://picknpay-backend.onrender.com", {
   transports: ["websocket"],
 });
 
@@ -34,21 +34,19 @@ function AppWrapper() {
     };
   }, [currentUserEmail]);
 
- useEffect(() => {
+  
+useEffect(() => {
   const unsubscribeMessage = onMessageListener()
     .then((payload) => {
       if (payload?.notification) {
-        alert(
-          `Notification: ${payload.notification.title} - ${payload.notification.body}`
-        );
+        const { title, body } = payload.notification;
+        console.log("📬 Foreground notification:", payload);
+        new Notification(title, { body, icon: "/logo192.png" });
       }
     })
     .catch((err) => console.log("FCM listener error:", err));
 
-
-  return () => {
-
-  };
+  return () => unsubscribeMessage;
 }, []);
 
 
