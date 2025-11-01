@@ -22,12 +22,13 @@ function AppWrapper() {
   const socket = io("https://picknpay-backend-5.onrender.com", {
   transports: ["websocket", "polling"],
   withCredentials: true,
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 2000,
 });
 
 
-
   useEffect(() => {
-   
     if (currentUserEmail) requestForToken(currentUserEmail);
 
     if (currentUserEmail) socket.emit("joinRoom", currentUserEmail);
@@ -36,21 +37,19 @@ function AppWrapper() {
     };
   }, [currentUserEmail]);
 
+  useEffect(() => {
+    const unsubscribeMessage = onMessageListener()
+      .then((payload) => {
+        if (payload?.notification) {
+          const { title, body } = payload.notification;
+          console.log("📬 Foreground notification:", payload);
+          new Notification(title, { body, icon: "/logo192.png" });
+        }
+      })
+      .catch((err) => console.log("FCM listener error:", err));
 
-useEffect(() => {
-  const unsubscribeMessage = onMessageListener()
-    .then((payload) => {
-      if (payload?.notification) {
-        const { title, body } = payload.notification;
-        console.log("📬 Foreground notification:", payload);
-        new Notification(title, { body, icon: "/logo192.png" });
-      }
-    })
-    .catch((err) => console.log("FCM listener error:", err));
-
-  return () => unsubscribeMessage;
-}, []);
-
+    return () => unsubscribeMessage;
+  }, []);
 
   const hideLayoutRoutes = ['/login', '/register', '/resetpassword'];
   const hideLayout =

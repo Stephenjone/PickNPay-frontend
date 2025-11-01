@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import io from "socket.io-client";
+import { requestForToken } from "./firebase";
 import "./Cart.css";
 import Navbar from "./Navbar";
 import { useNavigate } from "react-router-dom";
 import { REACT_API_URL } from "../actionTypes/authActionTypes";
 
 const API_BASE = `${REACT_API_URL}/api`;
-
-// Initialize socket once (avoid reconnects on every render)
 const socket = io(REACT_API_URL, { transports: ["websocket"] });
 
 const Cart = () => {
@@ -45,7 +44,7 @@ const Cart = () => {
   const clearCart = async (email) => {
     try {
       const res = await fetch(`${API_BASE}/cart/${encodeURIComponent(email)}`, {
-        method: "DELETE"
+        method: "DELETE",
       });
       if (!res.ok) {
         const errBody = await res.json().catch(() => ({}));
@@ -86,7 +85,6 @@ const Cart = () => {
     fetchCart(email);
     socket.emit("joinRoom", email);
 
-    // Cleanup listeners on unmount
     return () => {
       socket.off("orderAccepted");
       socket.off("orderUpdated");
@@ -100,13 +98,10 @@ const Cart = () => {
 
     const handleOrderAccepted = async (acceptedOrder) => {
       if (acceptedOrder._id !== orderId) return;
-
       const storedUserRaw = localStorage.getItem("user");
       const email = storedUserRaw ? JSON.parse(storedUserRaw).email : null;
 
-      if (email) {
-        await clearCart(email);
-      }
+      if (email) await clearCart(email);
 
       setTokenNumber(acceptedOrder.token || null);
       setOrderRejected(false);
@@ -125,9 +120,7 @@ const Cart = () => {
         const storedUserRaw = localStorage.getItem("user");
         const email = storedUserRaw ? JSON.parse(storedUserRaw).email : null;
 
-        if (email) {
-          await clearCart(email);
-        }
+        if (email) await clearCart(email);
 
         setTokenNumber(updatedOrder.token || null);
         setOrderRejected(false);
@@ -141,25 +134,15 @@ const Cart = () => {
     };
 
     const handleOrderRejected = async (rejectedOrder) => {
-      if (!rejectedOrder) return;
-      // Note: depending on your backend, you might send { orderId, message } instead of full object
-      // so you may need to check rejectedOrder.orderId === orderId etc.
-      console.log("Received orderRejected socket event:", rejectedOrder);
-
+      console.log("Received orderRejected:", rejectedOrder);
       const storedUserRaw = localStorage.getItem("user");
       const email = storedUserRaw ? JSON.parse(storedUserRaw).email : null;
-
-      if (email) {
-        fetchCart(email);
-      }
+      if (email) fetchCart(email);
 
       setOrderRejected(true);
       setTokenNumber(null);
       setShowOrderPopup(true);
-
-      setTimeout(() => {
-        setShowOrderPopup(false);
-      }, 5000);
+      setTimeout(() => setShowOrderPopup(false), 5000);
     };
 
     socket.on("orderAccepted", handleOrderAccepted);
@@ -173,32 +156,7 @@ const Cart = () => {
     };
   }, [orderId, navigate, fetchCart]);
 
-  const handleRemoveItem = async (itemId) => {
-    setCartItems((prev) => prev.filter((item) => item._id !== itemId));
-
-    const storedUserRaw = localStorage.getItem("user");
-    if (!storedUserRaw) return;
-    const parsedUser = JSON.parse(storedUserRaw);
-    const email = parsedUser.email;
-    if (!email) return;
-
-    try {
-      const res = await fetch(`${API_BASE}/cart/${encodeURIComponent(email)}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itemId }),
-      });
-      if (!res.ok) {
-        const errBody = await res.json().catch(() => ({}));
-        throw new Error(errBody.error || errBody.message || `Failed to remove item (status ${res.status})`);
-      }
-    } catch (err) {
-      console.error("Error in handleRemoveItem:", err);
-      // refetch cart if removal failed to sync
-      fetchCart(email);
-    }
-  };
-
+  // ✅ UPDATED: Include FCM token when placing order
   const handlePlaceOrder = async () => {
     setError("");
     const storedUserRaw = localStorage.getItem("user");
@@ -233,36 +191,41 @@ const Cart = () => {
     }));
 
     try {
+      // ✅ Request FCM token
+      const fcmToken = await requestForToken();
+      console.log("📱 FCM Token:", fcmToken);
+
       const res = await fetch(`${API_BASE}/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: name, email, items: orderItems }),
+        body: JSON.stringify({
+          username: name,
+          email,
+          items: orderItems,
+          fcmToken, // ✅ send to backend
+        }),
       });
 
       let data;
       try {
         data = await res.json();
       } catch (parseErr) {
-        console.error("Failed to parse response JSON in handlePlaceOrder:", parseErr);
-        throw new Error(`Unexpected server response (status ${res.status})`);
+        console.error("Failed to parse response JSON:", parseErr);
+        throw new Error(`Unexpected response (status ${res.status})`);
       }
 
       if (!res.ok) {
-        console.error("Server responded with error in handlePlaceOrder:", { status: res.status, body: data });
+        console.error("Server responded with error:", { status: res.status, body: data });
         throw new Error(data.message || data.error || `Failed to place order (status ${res.status})`);
       }
 
       const newOrderId = data._id || (data.order && data.order._id);
-      if (!newOrderId) {
-        console.warn("handlePlaceOrder: order id missing in response", data);
-      }
+      if (!newOrderId) console.warn("Missing order id in response", data);
+
       setOrderId(newOrderId);
       setTokenNumber(null);
       setOrderRejected(false);
       setShowOrderPopup(true);
-
-      // On success we do **not** clear cart immediately: we wait for order acceptance via socket
-
     } catch (err) {
       console.error("Error in handlePlaceOrder:", err);
       setError(err.message);
@@ -304,13 +267,38 @@ const Cart = () => {
         throw new Error(errBody.error || errBody.message || `Failed to update item quantity (status ${res.status})`);
       }
 
-      // Refresh cart
       fetchCart(email);
     } catch (err) {
       console.error("Error in updateItemQuantity:", err);
       setError("Failed to update quantity");
     }
   };
+
+  const handleRemoveItem = async (itemId) => {
+  setCartItems((prev) => prev.filter((item) => item._id !== itemId));
+
+  const storedUserRaw = localStorage.getItem("user");
+  if (!storedUserRaw) return;
+  const parsedUser = JSON.parse(storedUserRaw);
+  const email = parsedUser.email;
+  if (!email) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/cart/${encodeURIComponent(email)}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ itemId }),
+    });
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      throw new Error(errBody.error || errBody.message || `Failed to remove item (status ${res.status})`);
+    }
+  } catch (err) {
+    console.error("Error in handleRemoveItem:", err);
+    fetchCart(email);
+  }
+};
+
 
   return (
     <>
@@ -340,9 +328,7 @@ const Cart = () => {
                     </p>
                     <div className="quantity-controls">
                       <button 
-                        onClick={() => {
-                          if (quantity > 1) updateItemQuantity(_id, quantity - 1);
-                        }}
+                        onClick={() => quantity > 1 && updateItemQuantity(_id, quantity - 1)}
                         className="quantity-decrement-btn"
                       >
                         -
@@ -355,14 +341,12 @@ const Cart = () => {
                         +
                       </button>
                     </div>
-
                     <button onClick={() => handleRemoveItem(_id)} className="remove-btn">
                       Remove
                     </button>
                   </div>
                 </div>
               ))}
-
               <h3>Total: ₹{totalAmount.toFixed(2)}</h3>
               <button className="placeorder-btn" onClick={handlePlaceOrder}>
                 Place Order

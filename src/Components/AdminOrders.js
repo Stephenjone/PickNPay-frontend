@@ -36,7 +36,6 @@ const AdminOrders = () => {
     }
   };
 
-  // Update a single order in state (deep copy for items)
   const updateOrderInState = (order) => {
     setOrders((prev) => {
       const updated = prev.map((o) =>
@@ -47,7 +46,6 @@ const AdminOrders = () => {
     });
   };
 
-  // Socket setup
   useEffect(() => {
     alertSoundRef.current = new Audio("/notification.mp3");
     alertSoundRef.current.load();
@@ -78,9 +76,7 @@ const AdminOrders = () => {
 
     socket.on("orderUpdatedAdmin", (updatedOrder) => {
       console.log("📦 Order updated via socket:", updatedOrder);
-      if (updatedOrder._id) {
-        updateOrderInState(updatedOrder);
-      }
+      if (updatedOrder._id) updateOrderInState(updatedOrder);
     });
 
     socket.on("orderDeleted", (deletedOrder) => {
@@ -99,14 +95,34 @@ const AdminOrders = () => {
     };
   }, [soundEnabled]);
 
-  // Mark order as accepted
+  // 🔔 Send FCM notification helper
+  const sendPushNotification = async (email, title, message) => {
+    try {
+      await fetch(`${REACT_API_URL}/api/notify-user`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, title, message }),
+      });
+    } catch (err) {
+      console.warn("Push notification failed:", err.message);
+    }
+  };
+
   const handleAccept = async (orderId) => {
     try {
       setProcessing((prev) => ({ ...prev, [orderId]: true }));
       const res = await fetch(`${API_BASE}/${orderId}/accept`, { method: "PUT" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Accept failed");
+
       updateOrderInState(data.order);
+      socket.emit("orderAccepted", data.order);
+
+      await sendPushNotification(
+        data.order.email,
+        "Order Accepted 🎉",
+        `Your order ${data.order.orderId || ""} has been accepted. Token: ${data.order.token}`
+      );
     } catch (err) {
       setError(`Accept error: ${err.message}`);
     } finally {
@@ -114,35 +130,47 @@ const AdminOrders = () => {
     }
   };
 
-  // Reject/Delete order
   const handleDontAccept = async (orderId) => {
     try {
       const res = await fetch(`${API_BASE}/${orderId}`, { method: "DELETE" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Reject failed");
+
       setOrders((prev) => {
         const updated = prev.filter((o) => o._id !== orderId);
         localStorage.setItem("adminOrders", JSON.stringify(updated));
         return updated;
       });
+      socket.emit("orderRejected", data.order);
+      await sendPushNotification(
+        data.order.email,
+        "Order Rejected ❌",
+        `Sorry, your order ${data.order.orderId || ""} was rejected.`
+      );
     } catch (err) {
       setError(`Reject error: ${err.message}`);
     }
   };
 
-  // Mark order ready
   const handleReady = async (orderId) => {
     try {
       const res = await fetch(`${API_BASE}/${orderId}/ready`, { method: "PUT" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Ready failed");
+
       updateOrderInState(data.order);
+      socket.emit("orderUpdated", data.order);
+
+      await sendPushNotification(
+        data.order.email,
+        "Order Ready 🍴",
+        `Your order ${data.order.orderId || ""} is ready for pickup!`
+      );
     } catch (err) {
       setError(`Ready error: ${err.message}`);
     }
   };
 
-  // Mark as collected
   const handleCollected = async (orderId, collected) => {
     try {
       const res = await fetch(`${API_BASE}/${orderId}/collected`, {
@@ -152,7 +180,17 @@ const AdminOrders = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Collected failed");
+
       updateOrderInState(data.order);
+      socket.emit("orderUpdated", data.order);
+
+      await sendPushNotification(
+        data.order.email,
+        "Order Collected ✅",
+        collected
+          ? `Thank you! You've collected your order ${data.order.orderId || ""}.`
+          : `Your order ${data.order.orderId || ""} is still waiting for you.`
+      );
     } catch (err) {
       setError(`Collected error: ${err.message}`);
     }
@@ -264,8 +302,6 @@ const AdminOrders = () => {
                         Delete / Reject
                       </button>
                     </td>
-
-                    {/* Feedback Display */}
                     <td>
                       {order.items.map((item) => (
                         <div key={item._id}>
