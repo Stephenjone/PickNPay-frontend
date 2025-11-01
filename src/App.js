@@ -19,9 +19,11 @@ function AppWrapper() {
   const location = useLocation();
   const [currentUserEmail, setCurrentUserEmail] = useState(null);
 
-  const socket = io("https://picknpay-backend.onrender.com", {
-  transports: ["websocket"],
+  const socket = io("https://picknpay-backend-5.onrender.com", {
+  transports: ["websocket", "polling"],
+  withCredentials: true,
 });
+
 
 
   useEffect(() => {
@@ -34,7 +36,7 @@ function AppWrapper() {
     };
   }, [currentUserEmail]);
 
-  
+
 useEffect(() => {
   const unsubscribeMessage = onMessageListener()
     .then((payload) => {
