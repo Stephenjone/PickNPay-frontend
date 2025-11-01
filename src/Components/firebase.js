@@ -1,8 +1,7 @@
-// src/firebase.js
+// src/Components/firebase.js
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
-// 🔥 Your Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDem5jiT6AzQh3RNwfUqLVQCy2HWc23LLM",
   authDomain: "picknpay-f4361.firebaseapp.com",
@@ -13,17 +12,16 @@ const firebaseConfig = {
   measurementId: "G-JD0ZJXEBKB",
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
-// ✅ Request FCM token (works on mobile + desktop)
+// ✅ Ask for permission and get FCM token
 export const requestForToken = async (email) => {
   try {
     const permission = await Notification.requestPermission();
     if (permission !== "granted") {
-      console.warn("❌ Notification permission denied by user.");
-      return;
+      console.warn("❌ Notification permission denied.");
+      return null;
     }
 
     const token = await getToken(messaging, {
@@ -32,42 +30,48 @@ export const requestForToken = async (email) => {
     });
 
     if (!token) {
-      console.warn("⚠️ Failed to retrieve FCM token.");
-      return;
+      console.warn("⚠️ No FCM token retrieved.");
+      return null;
     }
 
     console.log("✅ FCM Token generated:", token);
 
-    // Send to backend
+    // Send token to backend
     const backendUrl =
-      process.env.REACT_APP_API || "https://picknpay-backend-5.onrender.com/api";
+      process.env.REACT_APP_API ||
+      "https://picknpay-backend-5.onrender.com/api";
 
-    await fetch(`${backendUrl}/orders/fcm-token`, {
+    const res = await fetch(`${backendUrl}/orders/fcm-token`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, fcmToken: token }),
     });
 
-    console.log("📩 Token successfully sent to backend");
+    if (!res.ok) {
+      console.error("❌ Failed to save token:", res.status);
+    } else {
+      console.log("📩 Token successfully saved to backend");
+    }
+
+    return token;
   } catch (err) {
     console.error("❌ Error getting FCM token:", err);
+    return null;
   }
 };
 
-// ✅ Foreground message listener (active app)
+// ✅ Foreground message listener
 export const onMessageListener = () =>
   new Promise((resolve) => {
     onMessage(messaging, (payload) => {
-      console.log("📨 Foreground message received:", payload);
-
+      console.log("📨 Foreground message:", payload);
       if (payload?.notification) {
-        const { title, body, icon } = payload.notification;
+        const { title, body } = payload.notification;
         new Notification(title, {
           body,
-          icon: icon || "/logo192.png",
+          icon: "/logo192.png",
         });
       }
-
       resolve(payload);
     });
   });

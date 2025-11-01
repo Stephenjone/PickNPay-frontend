@@ -2,7 +2,6 @@
 importScripts("https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js");
 
-// 🔥 Initialize Firebase inside service worker
 firebase.initializeApp({
   apiKey: "AIzaSyDem5jiT6AzQh3RNwfUqLVQCy2HWc23LLM",
   authDomain: "picknpay-f4361.firebaseapp.com",
@@ -15,13 +14,12 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// ✅ Handle background notifications (when app closed or backgrounded)
 messaging.onBackgroundMessage((payload) => {
   console.log("🔔 Background message received:", payload);
   const notificationTitle = payload.notification?.title || "PickNPay";
   const notificationOptions = {
-    body: payload.notification?.body || "You have a new message",
-    icon: payload.notification?.icon || "/logo192.png",
+    body: payload.notification?.body || "You have a new update.",
+    icon: "/logo192.png",
   };
   self.registration.showNotification(notificationTitle, notificationOptions);
 });
