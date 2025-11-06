@@ -141,6 +141,13 @@ const AdminOrders = () => {
 
   // ✅ Handle Reject Order
   const handleDontAccept = async (orderId) => {
+    // Show confirmation popup
+    const confirmed = window.confirm("Are you sure you want to delete this order?");
+    
+    if (!confirmed) {
+      return; // If user clicks Cancel, do nothing
+    }
+
     try {
       const res = await fetch(`${API_BASE}/${orderId}`, { method: "DELETE" });
       const data = await res.json();

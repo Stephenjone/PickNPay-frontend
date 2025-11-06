@@ -23,14 +23,34 @@ messaging.onBackgroundMessage(function (payload) {
     body: payload.notification?.body || "",
     icon: "/logo192.png",
     badge: "/logo192.png",
-    tag: 'picknpay-notification',  // Group notifications
-    requireInteraction: true,      // Keep notification visible until user interacts
-    actions: [                     // Add action buttons
+    tag: 'picknpay-notification',
+    vibrate: [200, 100, 200],     // Vibration pattern for mobile
+    sound: '/notification.mp3',    // Custom sound for notifications
+    renotify: true,               // Always notify even if there's an existing notification
+    data: payload.data,           // Store any additional data
+    actions: [
       {
-        action: 'open',
-        title: 'View Order'
+        action: 'view',
+        title: '👀 View',
+      },
+      {
+        action: 'close',
+        title: '❌ Dismiss',
       }
-    ]
+    ],
+    // Mobile-specific options
+    android: {
+      priority: 'high',
+      sound: 'notification',
+      clickAction: 'FLUTTER_NOTIFICATION_CLICK',
+      channelId: 'orders'
+    },
+    ios: {
+      sound: 'notification.mp3',
+      badge: '1',
+      priority: 5,
+      threadId: 'picknpay-orders'
+    }
   };
 
   // Show the notification

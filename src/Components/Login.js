@@ -69,13 +69,16 @@ const Login = ({ setCurrentUserEmail }) => {
       }
 
       // ✅ Request permission & FCM token
-      if (Notification.permission === "granted") {
-        await requestForToken(userEmail);
-      } else if (Notification.permission !== "denied") {
-        const permission = await Notification.requestPermission();
-        if (permission === "granted") {
-          await requestForToken(userEmail);
+      try {
+        const token = await requestForToken(userEmail);
+        if (token) {
+          console.log("✅ Successfully registered for notifications");
+        } else {
+          console.log("ℹ️ Notification registration skipped or failed");
         }
+      } catch (err) {
+        console.warn("⚠️ Error registering for notifications:", err);
+        // Don't block login if notification registration fails
       }
 
       // ✅ Navigate after short delay
