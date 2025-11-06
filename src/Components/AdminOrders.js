@@ -4,6 +4,7 @@ import Navbar from "./Navbar";
 import "./AdminOrders.css";
 import { REACT_API_URL } from "../actionTypes/authActionTypes";
 
+// ✅ Ensure correct base URLs
 const API_BASE = `${REACT_API_URL}/api/orders`;
 const socket = io(REACT_API_URL, { transports: ["websocket"] });
 
@@ -15,12 +16,13 @@ const AdminOrders = () => {
   const [soundEnabled, setSoundEnabled] = useState(false);
   const alertSoundRef = useRef(null);
 
-  // Fetch all orders
+  // ✅ Fetch all orders from backend
   const fetchOrders = async () => {
     try {
       const res = await fetch(API_BASE);
       if (!res.ok) throw new Error(`Failed to fetch orders (${res.status})`);
       const data = await res.json();
+
       if (Array.isArray(data)) {
         localStorage.removeItem("adminOrders");
         setOrders(data);
@@ -36,6 +38,7 @@ const AdminOrders = () => {
     }
   };
 
+  // ✅ Update order in local state
   const updateOrderInState = (order) => {
     setOrders((prev) => {
       const updated = prev.map((o) =>
@@ -95,19 +98,25 @@ const AdminOrders = () => {
     };
   }, [soundEnabled]);
 
-  // 🔔 Send FCM notification helper
+  // ✅ Send Push Notification Helper
   const sendPushNotification = async (email, title, message) => {
     try {
-      await fetch(`${REACT_API_URL}/api/notify-user`, {
+      const res = await fetch(`${REACT_API_URL}/api/notify-user`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, title, message }),
+        body: JSON.stringify({ email, title, body: message }),
       });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("Push notification error:", errText);
+      }
     } catch (err) {
       console.warn("Push notification failed:", err.message);
     }
   };
 
+  // ✅ Handle Accept Order
   const handleAccept = async (orderId) => {
     try {
       setProcessing((prev) => ({ ...prev, [orderId]: true }));
@@ -130,6 +139,7 @@ const AdminOrders = () => {
     }
   };
 
+  // ✅ Handle Reject Order
   const handleDontAccept = async (orderId) => {
     try {
       const res = await fetch(`${API_BASE}/${orderId}`, { method: "DELETE" });
@@ -142,6 +152,7 @@ const AdminOrders = () => {
         return updated;
       });
       socket.emit("orderRejected", data.order);
+
       await sendPushNotification(
         data.order.email,
         "Order Rejected ❌",
@@ -152,6 +163,7 @@ const AdminOrders = () => {
     }
   };
 
+  // ✅ Handle Ready Status
   const handleReady = async (orderId) => {
     try {
       const res = await fetch(`${API_BASE}/${orderId}/ready`, { method: "PUT" });
@@ -171,6 +183,7 @@ const AdminOrders = () => {
     }
   };
 
+  // ✅ Handle Collected Status
   const handleCollected = async (orderId, collected) => {
     try {
       const res = await fetch(`${API_BASE}/${orderId}/collected`, {

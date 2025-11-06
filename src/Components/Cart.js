@@ -191,9 +191,9 @@ const Cart = () => {
     }));
 
     try {
-      // ✅ Request FCM token
-      const fcmToken = await requestForToken();
-      console.log("📱 FCM Token:", fcmToken);
+  // ✅ Request FCM token (pass the user's email so firebase.js can save it)
+  const fcmToken = await requestForToken(email);
+  console.log("📱 FCM Token:", fcmToken);
 
       const res = await fetch(`${API_BASE}/orders`, {
         method: "POST",
@@ -202,7 +202,7 @@ const Cart = () => {
           username: name,
           email,
           items: orderItems,
-          fcmToken, // ✅ send to backend
+          fcmToken, // ✅ send to backend (may be undefined if token not available)
         }),
       });
 

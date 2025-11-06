@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import "./Login.css";
 import { REACT_API_URL } from "../actionTypes/authActionTypes";
+import { requestForToken } from "./firebase"; // ✅ Import FCM helper
+import "./Login.css";
 
-const Login = () => {
+const Login = ({ setCurrentUserEmail }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -25,48 +26,63 @@ const Login = () => {
     }
 
     if (!REACT_API_URL) {
-      console.error("REACT_API_URL is not defined!");
       setError("Internal error: API URL not set.");
       setLoading(false);
       return;
     }
 
     try {
-      console.log("Using backend URL:", REACT_API_URL);
+      console.log("🌐 Using backend URL:", REACT_API_URL);
       const res = await fetch(`${REACT_API_URL}/api/auth/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
       const text = await res.text();
-      console.log("Raw response from server:", text);
+      console.log("🔹 Raw response:", text);
 
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (err) {
-        throw new Error("Server did not return valid JSON.");
-      }
+      const data = JSON.parse(text);
 
-      if (!res.ok) {
-        throw new Error(data.error || "Login failed.");
-      }
+      if (!res.ok) throw new Error(data.error || "Login failed.");
 
       setSuccess(data.message || "Login successful!");
       setEmail("");
       setPassword("");
 
-      // Save token and user info
+      // ✅ Save token + user info
       localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      if (data.user) {
+        try {
+          localStorage.setItem("user", JSON.stringify(data.user));
+        } catch (err) {
+          console.warn("Could not save user to localStorage:", err);
+        }
+      }
+      // ✅ Get email safely
+      const userEmail = data?.user?.email;
+      if (!userEmail) {
+        console.error("⚠️ No user email found — cannot register FCM token.");
+      } else {
+        // lift user email up to App so components (App/Socket) can call requestForToken or join rooms
+        if (typeof setCurrentUserEmail === "function") setCurrentUserEmail(userEmail);
+      }
 
+      // ✅ Request permission & FCM token
+      if (Notification.permission === "granted") {
+        await requestForToken(userEmail);
+      } else if (Notification.permission !== "denied") {
+        const permission = await Notification.requestPermission();
+        if (permission === "granted") {
+          await requestForToken(userEmail);
+        }
+      }
+
+      // ✅ Navigate after short delay
       setTimeout(() => navigate("/dashboard"), 1000);
     } catch (err) {
-      console.error("Login error:", err);
-      setError(err.message || "Unexpected error");
+      console.error("❌ Login error:", err);
+      setError(err.message || "Unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -75,15 +91,9 @@ const Login = () => {
   return (
     <div className="login-body">
       <div className="login-container">
-        <img
-          src="/Assets/Logo1.png"
-          alt="PickNPay Logo"
-          className="logo1-img"
-        />
+        <img src="/Assets/Logo1.png" alt="PickNPay Logo" className="logo1-img" />
 
         <form className="login-form" onSubmit={handleLogin}>
-      
-
           <input
             type="email"
             placeholder="Enter your Email"
@@ -102,11 +112,9 @@ const Login = () => {
             {loading ? "Logging in..." : "Login"}
           </button>
 
-          {/* Messages */}
           {error && <p className="error">{error}</p>}
           {success && <p className="success">{success}</p>}
 
-          {/* Register & Forgot Password Links */}
           <div className="register-option">
             <span>Not registered yet? </span>
             <Link to="/register" className="register">

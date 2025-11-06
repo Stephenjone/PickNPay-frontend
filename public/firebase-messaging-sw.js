@@ -10,17 +10,53 @@ firebase.initializeApp({
   storageBucket: "picknpay-f4361.appspot.com",
   messagingSenderId: "605257463073",
   appId: "1:605257463073:web:dd0984f63216eb169eba60",
-  measurementId: "G-JD0ZJXEBKB",
 });
 
 const messaging = firebase.messaging();
 
+// Handle background messages
 messaging.onBackgroundMessage(function (payload) {
   console.log("📨 Background message received:", payload);
-  const title = payload.notification?.title || "PickNPay";
-  const options = {
+  
+  const notificationTitle = payload.notification?.title || "PickNPay";
+  const notificationOptions = {
     body: payload.notification?.body || "",
     icon: "/logo192.png",
+    badge: "/logo192.png",
+    tag: 'picknpay-notification',  // Group notifications
+    requireInteraction: true,      // Keep notification visible until user interacts
+    actions: [                     // Add action buttons
+      {
+        action: 'open',
+        title: 'View Order'
+      }
+    ]
   };
-  self.registration.showNotification(title, options);
+
+  // Show the notification
+  return self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+// Handle notification clicks
+self.addEventListener('notificationclick', function(event) {
+  console.log('👆 Notification clicked:', event);
+  
+  // Close the notification
+  event.notification.close();
+
+  // Handle action button clicks
+  if (event.action === 'open') {
+    // Open/focus the app
+    event.waitUntil(
+      clients.matchAll({ type: 'window', includeUncontrolled: true })
+        .then(function(clientList) {
+          if (clientList.length > 0) {
+            let client = clientList[0];
+            client.focus();
+            return client.navigate('/myorders');
+          }
+          return clients.openWindow('/myorders');
+        })
+    );
+  }
 });

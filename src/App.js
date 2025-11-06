@@ -37,18 +37,54 @@ function AppWrapper() {
     };
   }, [currentUserEmail]);
 
+  // Handle foreground notifications
   useEffect(() => {
-    const unsubscribeMessage = onMessageListener()
-      .then((payload) => {
+    if (!("Notification" in window)) {
+      console.log("❌ This browser does not support desktop notification");
+      return;
+    }
+
+    const handleForegroundMessage = async () => {
+      try {
+        const payload = await onMessageListener();
+        console.log("📬 Foreground message received:", payload);
+        
         if (payload?.notification) {
           const { title, body } = payload.notification;
-          console.log("📬 Foreground notification:", payload);
-          new Notification(title, { body, icon: "/logo192.png" });
-        }
-      })
-      .catch((err) => console.log("FCM listener error:", err));
+          
+          // Show notification using the Notifications API
+          const notification = new Notification(title, {
+            body,
+            icon: "/logo192.png",
+            badge: "/logo192.png",
+            tag: 'picknpay-notification',
+            requireInteraction: true,
+            actions: [{ action: 'open', title: 'View Order' }]
+          });
 
-    return () => unsubscribeMessage;
+          // Handle notification clicks
+          notification.onclick = function() {
+            window.focus();
+            notification.close();
+            window.location.href = '/myorders';
+          };
+        }
+      } catch (err) {
+        console.error("FCM listener error:", err);
+      }
+    };
+
+    // Start listening for messages
+    handleForegroundMessage();
+
+    // Request permission if needed
+    if (Notification.permission === "default") {
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          console.log("✅ Notification permission granted");
+        }
+      });
+    }
   }, []);
 
   const hideLayoutRoutes = ['/login', '/register', '/resetpassword'];
