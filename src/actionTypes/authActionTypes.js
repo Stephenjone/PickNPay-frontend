@@ -7,5 +7,5 @@ const isLocalhost =
 export const REACT_API_URL =
   process.env.NODE_ENV === "production"
     ? "https://picknpay-backend-5.onrender.com"
-    : "http://localhost:5000";
+    : "http://localhost:5001";
 
