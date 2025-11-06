@@ -110,7 +110,7 @@ const Cart = () => {
       setTimeout(() => {
         setShowOrderPopup(false);
         navigate("/myorders");
-      }, 5000);
+      }, 3000);
     };
 
     const handleOrderUpdated = async (updatedOrder) => {
