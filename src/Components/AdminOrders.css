@@ -47,15 +47,6 @@
   letter-spacing: 0.5px;
 }
 
-.rejected-status {
-  color: #dc3545;
-  font-weight: 600;
-  background-color: #ffebee;
-  padding: 6px 12px;
-  border-radius: 4px;
-  display: inline-block;
-}
-
 
 .admin-table td strong {
   color: #2c3e50;

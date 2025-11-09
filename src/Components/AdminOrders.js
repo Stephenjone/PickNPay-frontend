@@ -150,23 +150,20 @@ const AdminOrders = () => {
 
     try {
       setProcessing((prev) => ({ ...prev, [orderId]: true }));
-      const res = await fetch(`${REACT_API_URL}/api/reject-order/${orderId}`, { method: "POST" });
+      const res = await fetch(`${REACT_API_URL}/api/reject/${orderId}`, { method: "POST" });
       const data = await res.json();
+      
       if (!res.ok) throw new Error(data.message || "Reject failed");
 
-      // Update the order in state
-      const updatedOrder = {
-        ...data.order,
-        adminStatus: "Rejected",
-        userStatus: "Order Rejected"
-      };
-      updateOrderInState(updatedOrder);
-      
-      // Notify other clients about the rejection
-      socket.emit("orderRejected", updatedOrder);
+      if (data.success) {
+        // Update the order in state to show rejected status
+        updateOrderInState(data.order);
+        // Notify other admin clients about the rejection
+        socket.emit("orderRejected", data.order);
+      }
     } catch (err) {
+      setError(`Reject error: ${err.message}`);
       console.error("Rejection error:", err);
-      setError(`Rejection failed: ${err.message}`);
     } finally {
       setProcessing((prev) => ({ ...prev, [orderId]: false }));
     }
@@ -324,12 +321,23 @@ const AdminOrders = () => {
                       {order.adminStatus === "Collected" && <span>Collected</span>}
                     </td>
                     <td>
-                      {order.adminStatus !== "Rejected" ? (
-                        <button onClick={() => handleDontAccept(order._id)}>
-                          Don't Accept
-                        </button>
+                      {order.adminStatus === "Rejected" ? (
+                        <span style={{
+                          color: "#dc3545",
+                          fontWeight: "bold",
+                          padding: "8px 12px",
+                          background: "#ffebee",
+                          borderRadius: "4px"
+                        }}>
+                          Order Rejected
+                        </span>
                       ) : (
-                        <span className="rejected-status">Order Rejected</span>
+                        <button 
+                          onClick={() => handleDontAccept(order._id)}
+                          disabled={processing[order._id]}
+                        >
+                          {processing[order._id] ? "Rejecting..." : "Reject"}
+                        </button>
                       )}
                     </td>
                     <td>
