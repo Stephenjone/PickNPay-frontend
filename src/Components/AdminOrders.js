@@ -141,37 +141,28 @@ const AdminOrders = () => {
 
   // ✅ Handle Reject Order
   const handleDontAccept = async (orderId) => {
-    // Show confirmation popup
-    const confirmed = window.confirm("Are you sure you want to reject this order?");
+  const confirmed = window.confirm("Are you sure you want to reject this order?");
+  if (!confirmed) return;
+
+  try {
+    setProcessing((prev) => ({ ...prev, [orderId]: true }));
+    const res = await fetch(`${REACT_API_URL}/api/reject/${orderId}`, { method: "POST" });
+    const data = await res.json();
     
-    if (!confirmed) {
-      return; // If user clicks Cancel, do nothing
-    }
+    if (!res.ok) throw new Error(data.message || "Reject failed");
 
-    try {
-      setProcessing((prev) => ({ ...prev, [orderId]: true }));
-      const res = await fetch(`${REACT_API_URL}/api/reject/${orderId}`, { method: "POST" });
-      const data = await res.json();
-      
-      if (!res.ok) throw new Error(data.message || "Reject failed");
-
-      if (data.success) {
-        // Update the order in state to show rejected status
-        updateOrderInState(data.order);
-        // Notify other admin clients about the rejection
-        socket.emit("orderRejected", data.order);
-      }
-    } catch (err) {
-      setError(`Reject error: ${err.message}`);
-      console.error("Rejection error:", err);
-    } finally {
-      setProcessing((prev) => ({ ...prev, [orderId]: false }));
+    if (data.success) {
+      updateOrderInState(data.order);
+      socket.emit("orderRejected", data.order);
     }
-  };
-    } catch (err) {
-      setError(`Reject error: ${err.message}`);
-    }
-  };
+  } catch (err) {
+    setError(`Reject error: ${err.message}`);
+    console.error("Rejection error:", err);
+  } finally {
+    setProcessing((prev) => ({ ...prev, [orderId]: false }));
+  }
+};
+  
 
   // ✅ Handle Ready Status
   const handleReady = async (orderId) => {
