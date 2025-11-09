@@ -149,16 +149,28 @@ const AdminOrders = () => {
     }
 
     try {
+      setProcessing((prev) => ({ ...prev, [orderId]: true }));
       const res = await fetch(`${REACT_API_URL}/api/reject-order/${orderId}`, { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Reject failed");
 
-      // Update the order in state instead of removing it
-      updateOrderInState(data.order);
-      socket.emit("orderRejected", data.order);
-
-      // The push notification will be sent from the backend
-      // No need to call sendPushNotification here
+      // Update the order in state
+      const updatedOrder = {
+        ...data.order,
+        adminStatus: "Rejected",
+        userStatus: "Order Rejected"
+      };
+      updateOrderInState(updatedOrder);
+      
+      // Notify other clients about the rejection
+      socket.emit("orderRejected", updatedOrder);
+    } catch (err) {
+      console.error("Rejection error:", err);
+      setError(`Rejection failed: ${err.message}`);
+    } finally {
+      setProcessing((prev) => ({ ...prev, [orderId]: false }));
+    }
+  };
     } catch (err) {
       setError(`Reject error: ${err.message}`);
     }
@@ -312,9 +324,13 @@ const AdminOrders = () => {
                       {order.adminStatus === "Collected" && <span>Collected</span>}
                     </td>
                     <td>
-                      <button onClick={() => handleDontAccept(order._id)}>
-                        Delete / Reject
-                      </button>
+                      {order.adminStatus !== "Rejected" ? (
+                        <button onClick={() => handleDontAccept(order._id)}>
+                          Don't Accept
+                        </button>
+                      ) : (
+                        <span className="rejected-status">Order Rejected</span>
+                      )}
                     </td>
                     <td>
                       {order.items.map((item) => (
