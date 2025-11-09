@@ -141,31 +141,24 @@ const AdminOrders = () => {
 
   // ✅ Handle Reject Order
   const handleDontAccept = async (orderId) => {
-
     // Show confirmation popup
-    const confirmed = window.confirm("Are you sure you want to delete this order?");
+    const confirmed = window.confirm("Are you sure you want to reject this order?");
     
     if (!confirmed) {
       return; // If user clicks Cancel, do nothing
     }
 
     try {
-      const res = await fetch(`${API_BASE}/${orderId}`, { method: "DELETE" });
+      const res = await fetch(`${REACT_API_URL}/api/reject-order/${orderId}`, { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Reject failed");
 
-      setOrders((prev) => {
-        const updated = prev.filter((o) => o._id !== orderId);
-        localStorage.setItem("adminOrders", JSON.stringify(updated));
-        return updated;
-      });
+      // Update the order in state instead of removing it
+      updateOrderInState(data.order);
       socket.emit("orderRejected", data.order);
 
-      await sendPushNotification(
-        data.order.email,
-        "Order Rejected ❌",
-        `Sorry, your order ${data.order.orderId || ""} was rejected.`
-      );
+      // The push notification will be sent from the backend
+      // No need to call sendPushNotification here
     } catch (err) {
       setError(`Reject error: ${err.message}`);
     }
