@@ -1,13 +1,10 @@
-import React from 'react';
-import './Footer.css';
+import React from "react";
+import "./Footer.css";
 
-const Footer =()=>{
-    return(
-        <div className="footer">
-            <img src="./Assets/Copyright.png" alt="copyright"/>
-            <p>Copyright ©PickNPay</p>
-        </div>
-    )
+export default function Footer() {
+  return (
+    <footer className="app-footer">
+      © {new Date().getFullYear()} Catalyst — All Rights Reserved
+    </footer>
+  );
 }
-
-export default Footer;

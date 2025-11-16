@@ -17,15 +17,24 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* Move content toward the top */
+  justify-content: flex-start;
   height: 100vh;
   width: 100vw;
-  background: #F3E2D4;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
-  padding-top: 150px; /* Adjust this value to move more or less */
+  padding-top: 150px;
   overflow: hidden;
+
+ background-color: #FFA726;
+background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cg fill='none' stroke='%23FF6B35' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M40 40 h40 q10 0 10 10 v5 h-60 v-5 q0 -10 10 -10 z'/%3E%3Cpath d='M40 60 h60 v8 h-60 z'/%3E%3Cpath d='M40 75 q30 15 60 0'/%3E%3Cpath d='M120 30 l30 60 -60 0 z'/%3E%3Ccircle cx='125' cy='50' r='4'/%3E%3Ccircle cx='140' cy='70' r='4'/%3E%3Cpath d='M50 120 q20 -30 40 0'/%3E%3Cpath d='M65 120 l10 40 l10 -40'/%3E%3Ccircle cx='150' cy='140' r='20'/%3E%3Ccircle cx='150' cy='140' r='8'/%3E%3Cpath d='M30 160 h40 v30 h-40 z'/%3E%3Cpath d='M35 160 v-15'/%3E%3Cpath d='M45 160 v-18'/%3E%3Cpath d='M55 160 v-12'/%3E%3Cpath d='M65 160 v-20'/%3E%3C/g%3E%3C/svg%3E");
+background-repeat: repeat;
+background-size: 120px 120px;
 }
+
+
+
+
+
 
 
 /* ---------- Wrapper ---------- */
@@ -150,6 +159,49 @@ html, body {
   font-weight: 600;
 }
 
+/* ------------------- SPLASH SCREEN ------------------- */
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  background: #FFA726;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+
+  /* fade-out animation */
+  animation: fadeOut 0.6s ease forwards;
+  animation-delay: 2s;
+}
+
+.splash-logo {
+  width: 220px;
+  height: auto;
+  animation: bounce 1.6s infinite;
+  padding-bottom:0px;
+}
+
+/* Logo bouncing effect */
+@keyframes bounce {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-20px); }
+  100% { transform: translateY(0); }
+}
+
+/* Text fade-in */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Splash fade-out */
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; visibility: hidden; }
+}
+
+
 /* ---------- Responsive Styles ---------- */
 @media (max-width: 360px) {
   .login-form {
@@ -209,3 +261,18 @@ html, body {
   }
 }
 
+/* ---------- Button Loader Spinner ---------- */
+.button-loader {
+  border: 3px solid #f3f3f3; /* Light grey */
+  border-top: 3px solid #D7752C; /* Brand color */
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

@@ -4,7 +4,7 @@ import Navbar from "./Navbar";
 import "./AdminOrders.css";
 import { REACT_API_URL } from "../actionTypes/authActionTypes";
 
-// ✅ Ensure correct base URLs
+// ✅ Base URLs
 const API_BASE = `${REACT_API_URL}/api/orders`;
 const socket = io(REACT_API_URL, { transports: ["websocket"] });
 
@@ -80,6 +80,13 @@ const AdminOrders = () => {
     socket.on("orderUpdatedAdmin", (updatedOrder) => {
       console.log("📦 Order updated via socket:", updatedOrder);
       if (updatedOrder._id) updateOrderInState(updatedOrder);
+      if (updatedOrder.deletedOrderId) {
+        setOrders((prev) => {
+          const filtered = prev.filter((o) => o._id !== updatedOrder.deletedOrderId);
+          localStorage.setItem("adminOrders", JSON.stringify(filtered));
+          return filtered;
+        });
+      }
     });
 
     socket.on("orderDeleted", (deletedOrder) => {
@@ -95,6 +102,7 @@ const AdminOrders = () => {
       socket.off("newOrder");
       socket.off("orderUpdatedAdmin");
       socket.off("orderDeleted");
+      socket.disconnect();
     };
   }, [soundEnabled]);
 
@@ -141,28 +149,27 @@ const AdminOrders = () => {
 
   // ✅ Handle Reject Order
   const handleDontAccept = async (orderId) => {
-  const confirmed = window.confirm("Are you sure you want to reject this order?");
-  if (!confirmed) return;
+    const confirmed = window.confirm("Are you sure you want to reject this order?");
+    if (!confirmed) return;
 
-  try {
-    setProcessing((prev) => ({ ...prev, [orderId]: true }));
-    const res = await fetch(`${REACT_API_URL}/api/reject/${orderId}`, { method: "POST" });
-    const data = await res.json();
-    
-    if (!res.ok) throw new Error(data.message || "Reject failed");
+    try {
+      setProcessing((prev) => ({ ...prev, [orderId]: true }));
+      const res = await fetch(`${REACT_API_URL}/api/reject/${orderId}`, { method: "POST" });
+      const data = await res.json();
 
-    if (data.success) {
-      updateOrderInState(data.order);
-      socket.emit("orderRejected", data.order);
+      if (!res.ok) throw new Error(data.message || "Reject failed");
+
+      if (data.success) {
+        updateOrderInState(data.order);
+        socket.emit("orderRejected", data.order);
+      }
+    } catch (err) {
+      setError(`Reject error: ${err.message}`);
+      console.error("Rejection error:", err);
+    } finally {
+      setProcessing((prev) => ({ ...prev, [orderId]: false }));
     }
-  } catch (err) {
-    setError(`Reject error: ${err.message}`);
-    console.error("Rejection error:", err);
-  } finally {
-    setProcessing((prev) => ({ ...prev, [orderId]: false }));
-  }
-};
-  
+  };
 
   // ✅ Handle Ready Status
   const handleReady = async (orderId) => {
@@ -207,6 +214,35 @@ const AdminOrders = () => {
       );
     } catch (err) {
       setError(`Collected error: ${err.message}`);
+    }
+  };
+
+  // ✅ Handle Delete Order
+  const handleDelete = async (orderId) => {
+    const confirmed = window.confirm("Are you sure you want to permanently delete this order?");
+    if (!confirmed) return;
+
+    try {
+      setProcessing((prev) => ({ ...prev, [orderId]: true }));
+
+      const res = await fetch(`${API_BASE}/${orderId}`, { method: "DELETE" });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message || "Delete failed");
+
+      setOrders((prev) => {
+        const updated = prev.filter((o) => o._id !== orderId);
+        localStorage.setItem("adminOrders", JSON.stringify(updated));
+        return updated;
+      });
+
+      socket.emit("orderDeleted", { _id: orderId });
+      console.log("🗑️ Order deleted:", orderId);
+    } catch (err) {
+      setError(`Delete error: ${err.message}`);
+      console.error("Delete error:", err);
+    } finally {
+      setProcessing((prev) => ({ ...prev, [orderId]: false }));
     }
   };
 
@@ -312,24 +348,20 @@ const AdminOrders = () => {
                       {order.adminStatus === "Collected" && <span>Collected</span>}
                     </td>
                     <td>
-                      {order.adminStatus === "Rejected" ? (
-                        <span style={{
-                          color: "#dc3545",
-                          fontWeight: "bold",
-                          padding: "8px 12px",
-                          background: "#ffebee",
-                          borderRadius: "4px"
-                        }}>
-                          Order Rejected
-                        </span>
-                      ) : (
-                        <button 
-                          onClick={() => handleDontAccept(order._id)}
-                          disabled={processing[order._id]}
-                        >
-                          {processing[order._id] ? "Rejecting..." : "Reject"}
-                        </button>
-                      )}
+                      <button
+                        onClick={() => handleDelete(order._id)}
+                        style={{
+                          backgroundColor: "#b71c1c",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                          padding: "6px 10px",
+                          cursor: "pointer",
+                        }}
+                        disabled={processing[order._id]}
+                      >
+                        {processing[order._id] ? "Deleting..." : "Delete"}
+                      </button>
                     </td>
                     <td>
                       {order.items.map((item) => (

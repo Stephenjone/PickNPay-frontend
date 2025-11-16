@@ -1,325 +1,347 @@
-/* ================== Items.css ================== */
-
-/* General Page Styles */
 .items-page {
-  font-family: 'Chalkboard', sans-serif;
-  padding: 20px;
-  background-color: #f9f9f9;
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(135deg, #fff8f0 0%, #fff 100%);
   color: #333;
+  width: 100%;
+  padding: 20px 0;
+  position: relative; /* IMPORTANT: stays in normal flow */
+}
+
+/* NO top: and NO absolute positioning anywhere */
+
+.items-inner {
+  width: 95%;
+  max-width: 1600px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 0 40px;
 }
 
 /* ================== Banner ================== */
 .banner-content {
+  display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  background: #f39804;
-  padding: 30px 20px;
-  margin-bottom: 30px;
+  background: linear-gradient(272deg,rgba(254, 51, 0, 1) 10%, rgba(255, 84, 0, 1) 100%);
+  padding: 90px 30px 40px;
+  margin-bottom: 40px;
   text-align: center;
-  width: 100vw;
-  height: 50vh;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  left: 50%;
-  right: 50%;
+  width: 100vw !important;
+  margin-left: calc(-50vw + 50%) !important;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
   position: relative;
+  overflow: hidden;
+}
+
+.banner-content::before,
+.banner-content::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+}
+
+.banner-content::before {
+  top: -60px;
+  left: -60px;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.15);
+  animation: float 8s ease-in-out infinite;
+}
+
+.banner-content::after {
+  bottom: -80px;
+  right: -80px;
+  width: 250px;
+  height: 250px;
+  background: rgba(255, 255, 255, 0.1);
+  animation: float 10s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.05); }
 }
 
 .banner-logo {
-  width: 250px;
-  height: auto;
-  margin-top: 50px;
+  width: 220px;
+  margin-top: 0 !important;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.2));
+}
+
+.banner-text {
+  max-width: 600px;
+  z-index: 1;
+  padding-top:20px;
+  font-family: "Poppins", sans-serif;
 }
 
 .banner-text h1 {
   font-size: 3rem;
-  margin-bottom: 10px;
+  margin: 0 0 10px !important;
   color: #fff;
-  font-weight: 100;
-  top: 0;
+  font-weight:400;
+  line-height: 1.3;
+  font-family: "Playpen Sans", cursive;
 }
 
 .banner-text p {
   font-size: 1.1rem;
-  line-height: 1.6;
+  line-height: 1.1;
   color: #fff;
+  opacity: 0.95;
+  padding-top:15px;
+  font-family: "Playpen Sans", cursive;
 }
 
 /* ================== Items Container ================== */
 .items-container {
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 50px;
 }
 
-/* Category Title */
 .category-title {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
+  font-weight: 500;
   margin-bottom: 15px;
-  border-bottom: 2px solid #ddd;
-  padding-bottom: 5px;
+  padding-bottom: 3px;
   color: #222;
+  border-bottom: 3px solid #FE3300;
+  font-family: "Playpen Sans", cursive;
+  display: inline-block;
+  background: linear-gradient(to right, #FE3300, #FF5400);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* Items Grid */
+/* ================== Items Grid ================== */
 .items-grid {
   display: grid;
-  /* UPDATED: Set to exactly 2 columns to match the image layout */
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 30px;
 }
 
-/* Individual Item Card */
+/* ================== Item Card ================== */
 .item-card {
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  padding: 15px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  padding: 18px;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  min-height: 280px;
 }
 
 .item-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-8px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
 }
 
 .item-card img {
   width: 100%;
-  max-width: 180px;
-  height: auto;
-  border-radius: 8px;
-  margin-bottom: 10px;
+  max-width: 160px;
+  border-radius: 10px;
+  margin-bottom: 12px;
 }
 
 .item-card h3 {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   margin: 5px 0;
   text-align: center;
 }
 
 .item-card p {
-  font-size: 1rem;
-  margin: 5px 0 15px;
+  font-size: 0.95rem;
+  margin: 5px 0 12px;
+  text-align: center;
 }
 
-/* ================== Buttons ================== */
+/* ================== Footer Area ================== */
+.card-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+}
+
+/* ADD TO CART BUTTON */
 .item-card button {
-  background-color: #ff6b6b;
+  background-color: #fd5200;
   color: #fff;
   border: none;
   border-radius: 6px;
-  padding: 8px 15px;
+  padding: 8px 16px;
+  font-weight: 600;
   cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.2s ease;
+  transition: 0.3s ease;
+  width: 70%;
 }
 
 .item-card button:hover {
-  background-color: #ff4c4c;
+  transform: scale(1.05);
 }
 
-.delete-btn {
-  background-color: #888;
-}
-
-.delete-btn:hover {
-  background-color: #555;
-}
-
-/* Quantity Controls */
+/* QUANTITY CONTROLS */
 .quantity-controls {
   display: flex;
   align-items: center;
   gap: 10px;
-  
 }
 
 .quantity-controls button {
   width: 30px;
   height: 30px;
-  border-radius: 50%;
-  font-size: 1.2rem;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #4caf50;
+  border-radius: 8px;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #fff;
+  font-weight: 600;
+  transition: 0.3s ease;
 }
 
-
 .quantity-controls .increment {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  font-size: 1.2rem;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #4caf50;
-  border-radius: 8px;
+  background: #4caf50;
 }
 
 .quantity-controls .decrement {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  font-size: 1.2rem;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: red;
-  border-radius: 8px;
-}
-
-.quantity-controls button:hover {
-  background-color: #43a047;
+  background: #ff5252;
 }
 
 .quantity-controls span {
   font-size: 1rem;
+  font-weight: 600;
   min-width: 25px;
   text-align: center;
-  
 }
 
-/* ================== Messages ================== */
-.error-message {
-  color: #e53935;
-  font-weight: bold;
-  text-align: center;
-}
-
-.items-container p {
-  text-align: center;
+/* MOBILE CART BAR */
+.mobile-cart-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  background: #ff6000;
+  color: #fff;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-size: 1.1rem;
-  color: #666;
+  font-weight: 600;
+  box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.18);
+  z-index: 9999;
+  animation: slideUp 0.35s ease-out;
 }
 
-hr {
-  border: none;            /* Remove default border */
-  height: 3px;             /* Set thickness */
-  background-color: #fff;  /* Set color */
-  margin: 10px 0;          /* Optional spacing */
-  border-radius: 2px;      /* Optional for smoother edges */
+.mobile-cart-bar button {
+  background: #ffffff;
+  color: #ff6000;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s ease;
 }
 
+.mobile-cart-bar button:hover {
+  transform: scale(1.07);
+}
 
-/* ================== Mobile Responsiveness ================== */
-
-/* Smartphones (portrait) */
-@media (max-width: 480px) {
-  .banner-content {
-    flex-direction: column;
-    padding: 20px 10px;
-    height: auto;
-  }
-
-  .banner-logo {
-    width: 150px;
-    margin-top: 20px;
-  }
-
-  .banner-text h1 {
-    font-size: 1.5rem;
-    margin-bottom: 8px;
-  }
-
-  .banner-text p {
-    font-size: 1rem;
-    line-height: 1.4;
-  }
-
-  /* grid-template-columns is already 2 columns now, but keeping this for consistency and gap change */
+/* ================== RESPONSIVE BREAKPOINTS ================== */
+@media (max-width: 1599px) {
   .items-grid {
-    grid-template-columns: repeat(2, 1fr); 
-    gap: 15px;
+    grid-template-columns: repeat(5, 1fr);
   }
+}
 
+@media (max-width: 1279px) {
+  .items-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 26px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .items-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .item-card {
+    min-height: 260px;
+    padding: 14px;
+  }
   .item-card img {
+    max-width: 140px;
+  }
+}
+
+@media (max-width: 767px) {
+  .items-inner { padding: 0; }
+  .banner-content { flex-direction: column; padding: 65px 30px 40px; }
+  .banner-text h1 { font-size: 2rem; }
+  .items-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  .item-card img { max-width: 130px; }
+}
+
+@media (max-width: 599px) {
+  .items-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .banner-content { padding: 65px 30px 40px; }
+  .item-card {
+    padding: 12px;
+    min-height: 260px;
+  }
+  .item-card img { max-width: 120px; }
+}
+
+@media (max-width: 479px) {
+  .items-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .banner-content { padding: 65px 30px 40px; }
+  .items-inner {
+    width: 120%;
     max-width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
   }
-
-  .item-card h3 {
-    font-size: 0.8rem;
+  .category-title { padding-left:10px; }
+  .item-card {
+    padding: 10px;
+    min-height: 250px;
   }
-
-  .item-card p {
-    font-size: 0.9rem;
-    margin-bottom: 10px;
-  }
-
+  .item-card img { max-width: 110px; }
   .item-card button {
-    padding: 6px 12px;
-    font-size: 0.9rem;
-  }
-
-  .quantity-controls button {
-    width: 25px;
-    height: 25px;
-    font-size: 1rem;
-  }
-
-  .quantity-controls span {
-    font-size: 0.9rem;
-    min-width: 20px;
-  }
-
-  .category-title {
-    font-size: 1.2rem;
+    padding: 6px 10px;
+    font-size: 0.85rem;
   }
 }
 
-/* Small tablets (portrait) */
-@media (max-width: 768px) {
-  .banner-content {
-    padding: 25px 15px;
-    height: auto;
-  }
-
-  .banner-logo {
-    width: 180px;
-  }
-
-  .banner-text h1 {
-    font-size: 2rem;
-  }
-
-  .banner-text p {
-    font-size: 1rem;
-  }
-
-  /* No change needed here as the default is now 2 columns */
+@media (max-width: 359px) {
   .items-grid {
-    grid-template-columns: repeat(2, 1fr); 
+    grid-template-columns: repeat(1, 1fr);
+    gap: 10px;
   }
-}
-
-/* Landscape tablets / small desktops */
-@media (max-width: 1024px) {
-  .banner-content {
-    padding: 25px 20px;
+  .banner-content { padding: 65px 30px 40px; }
+  .category-title { padding-left:20px; }
+  .item-card {
+    padding: 8px;
+    min-height: 230px;
   }
-
-  .banner-logo {
-    width: 200px;
-  }
-
-  .banner-text h1 {
-    font-size: 2rem;
-  }
-
-  .banner-text p {
-    font-size: 1rem;
-  }
-
-  /* No change needed here as the default is now 2 columns */
-  .items-grid {
-    grid-template-columns: repeat(2, 1fr); 
-  }
+  .item-card img { max-width: 100px; }
 }

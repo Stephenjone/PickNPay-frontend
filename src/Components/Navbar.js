@@ -23,11 +23,11 @@ const Navbar = ({ searchTerm, onSearchChange, hideCart }) => {
   const [error, setError] = useState("");
   const [showUserMenu, setShowUserMenu] = useState(false);
 
-  // refs for outside-click detection
   const userMenuRef = useRef(null);
   const userIconRef = useRef(null);
   const navRef = useRef(null);
 
+  // Load user info
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -78,28 +78,21 @@ const Navbar = ({ searchTerm, onSearchChange, hideCart }) => {
     }
   };
 
-  // Close mobile user menu when clicking outside or pressing Escape
+  // Close menu on outside click
   useEffect(() => {
     const handleOutside = (e) => {
-      // if menu not open, nothing to do
       if (!showUserMenu) return;
-
-      // If click/touch is inside menu or on the icon, do nothing
       if (
         userMenuRef.current?.contains(e.target) ||
         userIconRef.current?.contains(e.target)
       ) {
         return;
       }
-
-      // Otherwise close the menu
       setShowUserMenu(false);
     };
 
     const handleKey = (e) => {
-      if (e.key === "Escape") {
-        setShowUserMenu(false);
-      }
+      if (e.key === "Escape") setShowUserMenu(false);
     };
 
     document.addEventListener("mousedown", handleOutside);
@@ -113,7 +106,6 @@ const Navbar = ({ searchTerm, onSearchChange, hideCart }) => {
     };
   }, [showUserMenu]);
 
-  // Helper: navigate and close menus
   const navAndClose = (path) => {
     setShowUserMenu(false);
     navigate(path);
@@ -123,15 +115,13 @@ const Navbar = ({ searchTerm, onSearchChange, hideCart }) => {
     <>
       <nav className="navbar" ref={navRef}>
         <div className="container nav-header">
-          {/* Home icon (visible on desktop + mobile) */}
+          {/* Home icon */}
           <div
             className="home-icon"
             onClick={() => {
               setShowUserMenu(false);
               navigate("/dashboard");
             }}
-            role="button"
-            aria-label="Home"
           >
             <FaHome size={28} />
           </div>
@@ -147,20 +137,16 @@ const Navbar = ({ searchTerm, onSearchChange, hideCart }) => {
 
           {/* Admin buttons (desktop) */}
           {isAdmin && (
-            <div className="nav-buttons desktop-only" aria-hidden={!isAdmin}>
+            <div className="nav-buttons desktop-only">
               <button
                 className="nav-btn"
-                onClick={() => {
-                  setShowAddItem(true);
-                }}
+                onClick={() => setShowAddItem(true)}
               >
                 <FaPlus /> Add Item
               </button>
               <button
                 className="nav-btn"
-                onClick={() => {
-                  navigate("/adminorders");
-                }}
+                onClick={() => navigate("/adminorders")}
               >
                 <FaBox /> View Orders
               </button>
@@ -177,6 +163,7 @@ const Navbar = ({ searchTerm, onSearchChange, hideCart }) => {
                 >
                   <FaClipboardList /> My Orders
                 </button>
+
                 <button
                   className="nav-btn-cart"
                   onClick={() => navigate("/cart")}
@@ -185,10 +172,12 @@ const Navbar = ({ searchTerm, onSearchChange, hideCart }) => {
                 </button>
               </>
             )}
+
             <FaUser />
             <span>
               Welcome, {isAdmin ? "Admin" : userName || userEmail || "Guest"}
             </span>
+
             <button className="logout-btn" onClick={handleLogout}>
               Logout
             </button>
@@ -199,9 +188,6 @@ const Navbar = ({ searchTerm, onSearchChange, hideCart }) => {
             className="mobile-user-icon"
             ref={userIconRef}
             onClick={() => setShowUserMenu((prev) => !prev)}
-            role="button"
-            aria-haspopup="true"
-            aria-expanded={showUserMenu}
           >
             {showUserMenu ? <FaTimes size={22} /> : <FaUser size={22} />}
             <span className="mobile-username">
@@ -210,7 +196,7 @@ const Navbar = ({ searchTerm, onSearchChange, hideCart }) => {
           </div>
         </div>
 
-        {/* Mobile user menu (dropdown) */}
+        {/* ---------- MOBILE DROPDOWN MENU (UPDATED) ---------- */}
         {showUserMenu && (
           <div className="mobile-user-menu" ref={userMenuRef}>
             {isAdmin ? (
@@ -224,54 +210,29 @@ const Navbar = ({ searchTerm, onSearchChange, hideCart }) => {
                 >
                   <FaPlus /> Add Item
                 </button>
+
                 <button
                   className="nav-btn"
-                  onClick={() => {
-                    navAndClose("/adminorders");
-                  }}
+                  onClick={() => navAndClose("/adminorders")}
                 >
                   <FaBox /> View Orders
                 </button>
               </>
             ) : (
               <>
-                {!hideCart && (
-                  <button
-                    className="nav-btn"
-                    onClick={() => {
-                      navAndClose("/myorders");
-                    }}
-                  >
-                    <FaClipboardList /> My Orders
-                  </button>
-                )}
-                {!hideCart && (
-                  <button
-                    className="nav-btn"
-                    onClick={() => {
-                      navAndClose("/cart");
-                    }}
-                  >
-                    <FaShoppingCart /> Cart
-                  </button>
-                )}
+                {/* Show ONLY My Orders on mobile (Cart removed) */}
+                <button
+                  className="nav-btn"
+                  onClick={() => navAndClose("/myorders")}
+                >
+                  <FaClipboardList /> My Orders
+                </button>
               </>
             )}
 
             <button
-              className="nav-btn"
-              onClick={() => {
-                navAndClose("/");
-              }}
-            >
-             
-            </button>
-
-            <button
               className="logout-btn"
-              onClick={() => {
-                handleLogout();
-              }}
+              onClick={handleLogout}
             >
               Logout
             </button>
@@ -303,6 +264,7 @@ const Navbar = ({ searchTerm, onSearchChange, hideCart }) => {
                 onChange={(e) => setPrice(e.target.value)}
                 required
               />
+
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
@@ -335,9 +297,7 @@ const Navbar = ({ searchTerm, onSearchChange, hideCart }) => {
               </div>
 
               <div className="form-actions">
-                <button type="submit" className="submit-btn">
-                  Save
-                </button>
+                <button type="submit" className="submit-btn">Save</button>
                 <button
                   type="button"
                   className="cancel-btn"

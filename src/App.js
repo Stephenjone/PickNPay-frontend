@@ -13,6 +13,7 @@ import Cart from './Components/Cart';
 import AdminOrders from './Components/AdminOrders';
 import MyOrders from './Components/MyOrders';
 import ResetPassword from './Components/resetPassword';
+import Footer from './Components/Footer';
 
 function AppWrapper() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,18 +21,17 @@ function AppWrapper() {
   const [currentUserEmail, setCurrentUserEmail] = useState(null);
 
   const socket = io("https://picknpay-backend-5.onrender.com", {
-  transports: ["websocket", "polling"],
-  withCredentials: true,
-  reconnection: true,
-  reconnectionAttempts: 5,
-  reconnectionDelay: 2000,
-});
-
+    transports: ["websocket", "polling"],
+    withCredentials: true,
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 2000,
+  });
 
   useEffect(() => {
     if (currentUserEmail) requestForToken(currentUserEmail);
-
     if (currentUserEmail) socket.emit("joinRoom", currentUserEmail);
+
     return () => {
       if (currentUserEmail) socket.emit("leaveRoom", currentUserEmail);
     };
@@ -39,20 +39,15 @@ function AppWrapper() {
 
   // Handle foreground notifications
   useEffect(() => {
-    if (!("Notification" in window)) {
-      console.log("❌ This browser does not support desktop notification");
-      return;
-    }
+    if (!("Notification" in window)) return;
 
     const handleForegroundMessage = async () => {
       try {
         const payload = await onMessageListener();
-        console.log("📬 Foreground message received:", payload);
-        
+
         if (payload?.notification) {
           const { title, body } = payload.notification;
-          
-          // Show notification using the Notifications API
+
           const notification = new Notification(title, {
             body,
             icon: "/logo192.png",
@@ -62,50 +57,50 @@ function AppWrapper() {
             actions: [{ action: 'open', title: 'View Order' }]
           });
 
-          // Handle notification clicks
-          notification.onclick = function() {
+          notification.onclick = () => {
             window.focus();
             notification.close();
             window.location.href = '/myorders';
           };
         }
       } catch (err) {
-        console.error("FCM listener error:", err);
+        console.error("Notification Listener Error:", err);
       }
     };
 
-    // Start listening for messages
     handleForegroundMessage();
 
-    // Request permission if needed
     if (Notification.permission === "default") {
-      Notification.requestPermission().then(permission => {
-        if (permission === "granted") {
-          console.log("✅ Notification permission granted");
-        }
-      });
+      Notification.requestPermission();
     }
   }, []);
 
+  // Hide navbar + footer on some routes
   const hideLayoutRoutes = ['/login', '/register', '/resetpassword'];
-  const hideLayout =
-    hideLayoutRoutes.includes(location.pathname) ||
-    location.pathname.startsWith('/resetpassword');
+  const hideLayout = hideLayoutRoutes.includes(location.pathname);
 
   return (
-    <div className="app-container">
-      {!hideLayout && <Navbar searchTerm={searchTerm} onSearchChange={setSearchTerm} />}
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="/login" element={<Login setCurrentUserEmail={setCurrentUserEmail} />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/resetpassword" element={<ResetPassword />} />
-        <Route path="/dashboard" element={<Items searchTerm={searchTerm} />} />
-        <Route path="/items" element={<Items searchTerm={searchTerm} />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/adminorders" element={<AdminOrders />} />
-        <Route path="/myorders" element={<MyOrders socket={socket} currentUserEmail={currentUserEmail} />} />
-      </Routes>
+    <div className="app-wrapper">   {/* UPDATED */}
+
+      {!hideLayout && (
+        <Navbar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+      )}
+
+      <div className="main-content">   {/* UPDATED */}
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/login" element={<Login setCurrentUserEmail={setCurrentUserEmail} />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/resetpassword" element={<ResetPassword />} />
+          <Route path="/dashboard" element={<Items searchTerm={searchTerm} />} />
+          <Route path="/items" element={<Items searchTerm={searchTerm} />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/adminorders" element={<AdminOrders />} />
+          <Route path="/myorders" element={<MyOrders socket={socket} currentUserEmail={currentUserEmail} />} />
+        </Routes>
+      </div>
+
+      {!hideLayout && <Footer />}
     </div>
   );
 }

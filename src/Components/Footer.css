@@ -1,38 +1,10 @@
-.footer {
-  width: 100%;
-  padding: 10px 0;
+.app-footer {
   text-align: center;
-  position: relative;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 2px;
-  z-index: 100;
-}
-
-.footer img {
-  width: 22px;
-  height: 22px;
-  opacity: 0.8;
-  
-}
-
-.footer p {
-  margin: 0;
-  font-size: 22px;
-  color: #333;
-  font-family: 'Patrick Hand', cursive;
-}
-
-@media (max-width: 600px) {
-  .footer img {
-    width: 18px;
-    height: 18px;
-  }
-
-  .footer p {
-    font-size: 18px;
-  }
+  padding: 10px 0;
+  background: linear-gradient(272deg, rgba(254, 51, 0, 1) 10%, rgba(255, 84, 0, 1) 100%);
+  color: #fff;
+  font-size: 14px;
+  font-family: "Playpen Sans", cursive;
+  width: 100%;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }

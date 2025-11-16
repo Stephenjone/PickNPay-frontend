@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { REACT_API_URL } from "../actionTypes/authActionTypes";
-import { requestForToken } from "./firebase"; // ✅ Import FCM helper
+import { requestForToken } from "./firebase";
+
 import "./Login.css";
 
 const Login = ({ setCurrentUserEmail }) => {
@@ -11,86 +12,80 @@ const Login = ({ setCurrentUserEmail }) => {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Splash screen
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 1500); // Faster splash
+    return () => clearTimeout(timer);
+  }, []);
+
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
-    setLoading(true);
 
     if (!email || !password) {
       setError("Please fill all the fields!");
-      setLoading(false);
       return;
     }
 
-    if (!REACT_API_URL) {
-      setError("Internal error: API URL not set.");
-      setLoading(false);
-      return;
-    }
+    setLoading(true);
 
     try {
-      console.log("🌐 Using backend URL:", REACT_API_URL);
+      // 🔥 Removed artificial 5-second delay
       const res = await fetch(`${REACT_API_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
-      const text = await res.text();
-      console.log("🔹 Raw response:", text);
-
-      const data = JSON.parse(text);
-
+      const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Login failed.");
+
+      // Save token & user
+      localStorage.setItem("token", data.token);
+      if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
+
+      const userEmail = data?.user?.email;
+
+      if (userEmail && typeof setCurrentUserEmail === "function") {
+        setCurrentUserEmail(userEmail);
+      }
 
       setSuccess(data.message || "Login successful!");
       setEmail("");
       setPassword("");
 
-      // ✅ Save token + user info
-      localStorage.setItem("token", data.token);
-      if (data.user) {
-        try {
-          localStorage.setItem("user", JSON.stringify(data.user));
-        } catch (err) {
-          console.warn("Could not save user to localStorage:", err);
-        }
-      }
-      // ✅ Get email safely
-      const userEmail = data?.user?.email;
-      if (!userEmail) {
-        console.error("⚠️ No user email found — cannot register FCM token.");
-      } else {
-        // lift user email up to App so components (App/Socket) can call requestForToken or join rooms
-        if (typeof setCurrentUserEmail === "function") setCurrentUserEmail(userEmail);
+      // Register FCM token (non-blocking)
+      if (userEmail) {
+        requestForToken(userEmail).catch(() =>
+          console.warn("FCM registration failed")
+        );
       }
 
-      // ✅ Request permission & FCM token
-      try {
-        const token = await requestForToken(userEmail);
-        if (token) {
-          console.log("✅ Successfully registered for notifications");
-        } else {
-          console.log("ℹ️ Notification registration skipped or failed");
-        }
-      } catch (err) {
-        console.warn("⚠️ Error registering for notifications:", err);
-        // Don't block login if notification registration fails
-      }
-
-      // ✅ Navigate after short delay
-      setTimeout(() => navigate("/dashboard"), 1000);
+      // Fast redirect
+      setTimeout(() => navigate("/dashboard"), 300);
     } catch (err) {
-      console.error("❌ Login error:", err);
+      console.error("Login error:", err);
       setError(err.message || "Unexpected error occurred");
     } finally {
       setLoading(false);
     }
   };
 
+  // SPLASH
+  if (showSplash) {
+    return (
+      <div className="splash-screen">
+        <img src="/Assets/Logo1.png" className="splash-logo" alt="PickNPay" />
+      </div>
+    );
+  }
+
+  // LOGIN UI
   return (
     <div className="login-body">
       <div className="login-container">
@@ -102,6 +97,7 @@ const Login = ({ setCurrentUserEmail }) => {
             placeholder="Enter your Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
           />
 
           <input
@@ -109,10 +105,18 @@ const Login = ({ setCurrentUserEmail }) => {
             placeholder="Enter your Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
           />
 
           <button type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
+            {loading ? (
+              <div className="chef-loader">
+                <div className="chef-hat"></div>
+                <div className="chef-pan"></div>
+              </div>
+            ) : (
+              "Login"
+            )}
           </button>
 
           {error && <p className="error">{error}</p>}
@@ -125,7 +129,7 @@ const Login = ({ setCurrentUserEmail }) => {
             </Link>
           </div>
 
-          <div className="forgot-password-link" style={{ textAlign: "center", marginTop: "10px" }}>
+          <div className="forgot-password-link" style={{ textAlign: "center" }}>
             <Link to="/resetpassword">Forgot Password?</Link>
           </div>
         </form>
