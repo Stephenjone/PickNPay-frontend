@@ -50,61 +50,72 @@ const AdminOrders = () => {
   };
 
   useEffect(() => {
-    alertSoundRef.current = new Audio("/notification.mp3");
-    alertSoundRef.current.load();
+  alertSoundRef.current = new Audio("/notification.mp3");
+  alertSoundRef.current.load();
 
-    fetchOrders();
+  fetchOrders();
 
-    const playAlertSound = () => {
-      if (soundEnabled && alertSoundRef.current) {
-        alertSoundRef.current.currentTime = 0;
-        alertSoundRef.current
-          .play()
-          .catch((err) => console.warn("Sound play error:", err));
-      }
-    };
+  // Join admin room
+  socket.emit("joinAdmin");
 
-    socket.on("connect", () =>
-      console.log("🔗 Admin socket connected:", socket.id)
-    );
+  const playAlertSound = () => {
+    if (soundEnabled && alertSoundRef.current) {
+      alertSoundRef.current.currentTime = 0;
+      alertSoundRef.current.play().catch(() => {});
+    }
+  };
 
-    socket.on("newOrder", (order) => {
-      playAlertSound();
-      setOrders((prev) => {
-        const updated = [order, ...prev];
-        localStorage.setItem("adminOrders", JSON.stringify(updated));
-        return updated;
-      });
+  socket.on("connect", () => {
+    console.log("🔗 Admin socket connected:", socket.id);
+  });
+
+  // 🔥 Receive NEW ORDER from backend
+  socket.on("adminNewOrder", (data) => {
+    const newOrder = data.order; // extract actual order object
+
+    console.log("🔥 Admin NEW ORDER RECEIVED:", newOrder);
+
+    playAlertSound();
+
+    setOrders((prev) => {
+      const updated = [newOrder, ...prev];
+      localStorage.setItem("adminOrders", JSON.stringify(updated));
+      return updated;
     });
+  });
 
-    socket.on("orderUpdatedAdmin", (updatedOrder) => {
-      console.log("📦 Order updated via socket:", updatedOrder);
-      if (updatedOrder._id) updateOrderInState(updatedOrder);
-      if (updatedOrder.deletedOrderId) {
-        setOrders((prev) => {
-          const filtered = prev.filter((o) => o._id !== updatedOrder.deletedOrderId);
-          localStorage.setItem("adminOrders", JSON.stringify(filtered));
-          return filtered;
-        });
-      }
-    });
+  // 🔁 Order updated (status changes)
+  socket.on("orderUpdatedAdmin", (updatedOrder) => {
+    console.log("📦 Order updated:", updatedOrder);
 
-    socket.on("orderDeleted", (deletedOrder) => {
+    if (updatedOrder._id) updateOrderInState(updatedOrder);
+
+    if (updatedOrder.deletedOrderId) {
       setOrders((prev) => {
-        const filtered = prev.filter((o) => o._id !== deletedOrder._id);
+        const filtered = prev.filter((o) => o._id !== updatedOrder.deletedOrderId);
         localStorage.setItem("adminOrders", JSON.stringify(filtered));
         return filtered;
       });
-    });
+    }
+  });
 
-    return () => {
-      socket.off("connect");
-      socket.off("newOrder");
-      socket.off("orderUpdatedAdmin");
-      socket.off("orderDeleted");
-      socket.disconnect();
-    };
-  }, [soundEnabled]);
+  // 🗑 Delete event
+  socket.on("orderDeleted", (deletedOrder) => {
+    setOrders((prev) => {
+      const filtered = prev.filter((o) => o._id !== deletedOrder._id);
+      localStorage.setItem("adminOrders", JSON.stringify(filtered));
+      return filtered;
+    });
+  });
+
+  return () => {
+    socket.off("connect");
+    socket.off("adminNewOrder");
+    socket.off("orderUpdatedAdmin");
+    socket.off("orderDeleted");
+  };
+}, [soundEnabled]);
+
 
   // ✅ Send Push Notification Helper
   const sendPushNotification = async (email, title, message) => {
@@ -285,7 +296,7 @@ const AdminOrders = () => {
               {orders.length > 0 ? (
                 orders.map((order) => (
                   <tr key={order._id}>
-                    <td>{order.username || order.email.split("@")[0]}</td>
+                    <td>{order?.username || order?.email?.split("@")[0] || "Unknown"}</td>
                     <td>{order.email}</td>
                     <td>
                       {order.createdAt

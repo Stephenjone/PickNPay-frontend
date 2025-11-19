@@ -130,8 +130,10 @@ const Login = ({ setCurrentUserEmail }) => {
           </div>
 
           <div className="forgot-password-link" style={{ textAlign: "center" }}>
-            <Link to="/resetpassword">Forgot Password?</Link>
-          </div>
+  <Link to="/resetpassword" style={{ color: "#BF1A1A", fontSize:"13px" }}>
+    Forgot Password?
+  </Link>
+</div>
         </form>
       </div>
     </div>

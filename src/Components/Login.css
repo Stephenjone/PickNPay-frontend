@@ -1,16 +1,3 @@
-/* ---------- Global Reset ---------- */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html, body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
 
 /* ---------- Page Background ---------- */
 .login-body {
@@ -25,17 +12,11 @@ html, body {
   padding-top: 150px;
   overflow: hidden;
 
- background-color: #FFA726;
-background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cg fill='none' stroke='%23FF6B35' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M40 40 h40 q10 0 10 10 v5 h-60 v-5 q0 -10 10 -10 z'/%3E%3Cpath d='M40 60 h60 v8 h-60 z'/%3E%3Cpath d='M40 75 q30 15 60 0'/%3E%3Cpath d='M120 30 l30 60 -60 0 z'/%3E%3Ccircle cx='125' cy='50' r='4'/%3E%3Ccircle cx='140' cy='70' r='4'/%3E%3Cpath d='M50 120 q20 -30 40 0'/%3E%3Cpath d='M65 120 l10 40 l10 -40'/%3E%3Ccircle cx='150' cy='140' r='20'/%3E%3Ccircle cx='150' cy='140' r='8'/%3E%3Cpath d='M30 160 h40 v30 h-40 z'/%3E%3Cpath d='M35 160 v-15'/%3E%3Cpath d='M45 160 v-18'/%3E%3Cpath d='M55 160 v-12'/%3E%3Cpath d='M65 160 v-20'/%3E%3C/g%3E%3C/svg%3E");
-background-repeat: repeat;
-background-size: 120px 120px;
+  background-Color: #f8b17c;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cg fill='none' stroke='%23FF6B35' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M40 40 h40 q10 0 10 10 v5 h-60 v-5 q0 -10 10 -10 z'/%3E%3Cpath d='M40 60 h60 v8 h-60 z'/%3E%3Cpath d='M40 75 q30 15 60 0'/%3E%3Cpath d='M120 30 l30 60 -60 0 z'/%3E%3Ccircle cx='125' cy='50' r='4'/%3E%3Ccircle cx='140' cy='70' r='4'/%3E%3Cpath d='M50 120 q20 -30 40 0'/%3E%3Cpath d='M65 120 l10 40 l10 -40'/%3E%3Ccircle cx='150' cy='140' r='20'/%3E%3Ccircle cx='150' cy='140' r='8'/%3E%3Cpath d='M30 160 h40 v30 h-40 z'/%3E%3Cpath d='M35 160 v-15'/%3E%3Cpath d='M45 160 v-18'/%3E%3Cpath d='M55 160 v-12'/%3E%3Cpath d='M65 160 v-20'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 80px 80px;
 }
-
-
-
-
-
-
 
 /* ---------- Wrapper ---------- */
 .login-container {
@@ -44,10 +25,10 @@ background-size: 120px 120px;
   align-items: center;
   width: 100%;
   max-width: 500px;
-  padding-left:10px;
-  padding-right:10px;
-  padding-top:0;
-  margin:0;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 0;
+  margin: 0;
 }
 
 /* ---------- Logo ---------- */
@@ -57,31 +38,31 @@ background-size: 120px 120px;
   height: auto;
   margin: 0 auto;
   cursor: pointer;
-  padding-top:30px;
-  padding-bottom:0px;
+  padding-top: 30px;
+  padding-bottom: 0px;
 }
-
 
 /* ---------- Form ---------- */
 .login-form {
   width: 100%;
   padding: clamp(18px, 5vw, 28px);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(245, 207, 70, 0.15); /* subtle golden translucent */
   backdrop-filter: blur(12px) saturate(100%);
   -webkit-backdrop-filter: blur(12px) saturate(100%);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(215, 117, 44, 0.4); /* orange border */
+  box-shadow: 0 10px 28px rgba(215, 117, 44, 0.3);
   display: flex;
   flex-direction: column;
   margin-top: 0;
+  color: #3B1F0B; /* dark warm text */
 }
 
 /* ---------- Heading ---------- */
 .login-form h2 {
   margin: 0 0 16px;
   text-align: center;
-  color: #111;
+  color: #B9382F; /* dark red from logo */
   font-family: "Playpen Sans", cursive;
   font-size: clamp(20px, 5vw, 30px);
   font-weight: 100;
@@ -93,16 +74,21 @@ background-size: 120px 120px;
   padding: clamp(12px, 3vw, 16px);
   margin-bottom: 14px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  background: rgba(255, 255, 255, 0.22);
-  color: #111;
+  border: 1px solid rgba(215, 117, 44, 0.5); /* orange border */
+  background: rgba(245, 207, 70, 0.1); /* very light golden */
+  color: #3B1F0B;
   font-size: clamp(14px, 4vw, 16px);
   transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
 }
 
+.login-form input::placeholder {
+  color: rgba(59, 31, 11, 0.7);
+}
+
 .login-form input:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  border-color: #D7752C;
+  box-shadow: 0 0 0 3px rgba(215, 117, 44, 0.3);
 }
 
 /* ---------- Button ---------- */
@@ -112,15 +98,16 @@ background-size: 120px 120px;
   border: 0;
   border-radius: 10px;
   background: linear-gradient(135deg, #D7752C, #F5CF46);
-  color: #fff;
+  color: #3B1F0B;
   font-weight: 600;
   font-size: clamp(14px, 4vw, 16px);
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.25s ease, opacity 0.2s;
+  transition: transform 0.2s ease, box-shadow 0.25s ease, opacity 0.2s, background-color 0.25s ease;
 }
 
 .login-form button:hover {
-  background-color: #4338ca;
+  background: linear-gradient(135deg, #B9382F, #D7752C);
+  color: #fff;
 }
 
 /* ---------- Messages ---------- */
@@ -150,11 +137,11 @@ background-size: 120px 120px;
   margin-top: 14px;
   text-align: center;
   font-size: clamp(13px, 3.2vw, 15px);
-  color: #000;
+  color: #3B1F0B;
 }
 
 .register-option .register {
-  color: green;
+  color: #15803d;
   text-decoration: none;
   font-weight: 600;
 }
@@ -163,7 +150,7 @@ background-size: 120px 120px;
 .splash-screen {
   position: fixed;
   inset: 0;
-  background: #FFA726;
+  background: linear-gradient(180deg, #D7752C 0%, #F5CF46 100%);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -179,7 +166,12 @@ background-size: 120px 120px;
   width: 220px;
   height: auto;
   animation: bounce 1.6s infinite;
-  padding-bottom:0px;
+  padding-bottom: 0px;
+}
+
+.forgot-password-link {
+  color: #B9382F;
+  text-align: center;
 }
 
 /* Logo bouncing effect */
@@ -200,7 +192,6 @@ background-size: 120px 120px;
   from { opacity: 1; }
   to   { opacity: 0; visibility: hidden; }
 }
-
 
 /* ---------- Responsive Styles ---------- */
 @media (max-width: 360px) {

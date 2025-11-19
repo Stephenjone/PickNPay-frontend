@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { REACT_API_URL } from "../actionTypes/authActionTypes"; // ✅ same as Login.js
+import { REACT_API_URL } from "../actionTypes/authActionTypes"; 
 import "./Register.css";
 
 const Register = () => {
@@ -55,7 +55,6 @@ const Register = () => {
       setEmail("");
       setPassword("");
 
-      // redirect to login after success
       setTimeout(() => navigate("/login"), 1000);
     } catch (err) {
       console.error("Register error:", err);
@@ -66,8 +65,8 @@ const Register = () => {
   };
 
   return (
-    <div className="register-body">
-      <div className="register-container">
+    <div className="login-body">
+      <div className="login-container">
         {/* Logo */}
         <img
           src="/Assets/Logo1.png"
@@ -76,7 +75,7 @@ const Register = () => {
         />
 
         {/* Register Form */}
-        <form className="register-form" onSubmit={handleRegister}>
+        <form className="login-form" onSubmit={handleRegister}>
           <input
             type="text"
             placeholder="Enter your Name"
@@ -105,9 +104,9 @@ const Register = () => {
           {error && <p className="error">{error}</p>}
           {success && <p className="success">{success}</p>}
 
-          <div className="login-option">
+          <div className="register-option">
             <span>Already have an account? </span>
-            <Link to="/login" className="login-link">
+            <Link to="/login" className="register">
               Login here
             </Link>
           </div>

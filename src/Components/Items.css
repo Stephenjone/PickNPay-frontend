@@ -7,6 +7,8 @@
   position: relative; /* IMPORTANT: stays in normal flow */
 }
 
+
+
 /* NO top: and NO absolute positioning anywhere */
 
 .items-inner {
