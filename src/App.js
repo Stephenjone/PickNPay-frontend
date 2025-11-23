@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import io from 'socket.io-client';
 
@@ -15,78 +15,90 @@ import MyOrders from './Components/MyOrders';
 import ResetPassword from './Components/resetPassword';
 import Footer from './Components/Footer';
 
+
 function AppWrapper() {
   const [searchTerm, setSearchTerm] = useState('');
-  const location = useLocation();
   const [currentUserEmail, setCurrentUserEmail] = useState(null);
 
-  const socket = io("https://picknpay-backend-5.onrender.com", {
-    transports: ["websocket", "polling"],
-    withCredentials: true,
-    reconnection: true,
-    reconnectionAttempts: 5,
-    reconnectionDelay: 2000,
-  });
+  const location = useLocation();
+
+  // SOCKET INITIALIZED ONLY ONCE — FIXES PERFORMANCE LAG
+  const socketRef = useRef(null);
 
   useEffect(() => {
-    if (currentUserEmail) requestForToken(currentUserEmail);
-    if (currentUserEmail) socket.emit("joinRoom", currentUserEmail);
+    if (!socketRef.current) {
+      socketRef.current = io("https://picknpay-backend-5.onrender.com", {
+        transports: ["websocket"],
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 2000,
+      });
+    }
 
     return () => {
-      if (currentUserEmail) socket.emit("leaveRoom", currentUserEmail);
+      socketRef.current?.disconnect();
+    };
+  }, []);
+
+  // JOIN USER ROOM
+  useEffect(() => {
+    if (!socketRef.current) return;
+
+    if (currentUserEmail) {
+      socketRef.current.emit("joinRoom", currentUserEmail);
+      requestForToken(currentUserEmail);
+    }
+
+    return () => {
+      if (currentUserEmail) {
+        socketRef.current.emit("leaveRoom", currentUserEmail);
+      }
     };
   }, [currentUserEmail]);
 
-  // Handle foreground notifications
+  // FOREGROUND FCM NOTIFICATIONS — ONLY SETUP ONCE
   useEffect(() => {
-    if (!("Notification" in window)) return;
+    const unsubscribe = onMessageListener().then((payload) => {
+      if (payload?.notification) {
+        const { title, body } = payload.notification;
 
-    const handleForegroundMessage = async () => {
-      try {
-        const payload = await onMessageListener();
+        const notification = new Notification(title, {
+          body,
+          icon: "/logo192.png",
+          tag: 'picknpay-notification',
+          requireInteraction: true
+        });
 
-        if (payload?.notification) {
-          const { title, body } = payload.notification;
-
-          const notification = new Notification(title, {
-            body,
-            icon: "/logo192.png",
-            badge: "/logo192.png",
-            tag: 'picknpay-notification',
-            requireInteraction: true,
-            actions: [{ action: 'open', title: 'View Order' }]
-          });
-
-          notification.onclick = () => {
-            window.focus();
-            notification.close();
-            window.location.href = '/myorders';
-          };
-        }
-      } catch (err) {
-        console.error("Notification Listener Error:", err);
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+          window.location.href = '/myorders';
+        };
       }
-    };
-
-    handleForegroundMessage();
+    });
 
     if (Notification.permission === "default") {
       Notification.requestPermission();
     }
+
+    return () => {
+      if (unsubscribe && typeof unsubscribe === "function") unsubscribe();
+    };
   }, []);
 
-  // Hide navbar + footer on some routes
-  const hideLayoutRoutes = ['/login', '/register', '/resetpassword'];
-  const hideLayout = hideLayoutRoutes.includes(location.pathname);
+  // HIDE LAYOUT ON AUTH PAGES
+  const hideLayout = useMemo(() => {
+    return ["/login", "/register", "/resetpassword"].includes(location.pathname);
+  }, [location.pathname]);
+
 
   return (
-    <div className="app-wrapper">   {/* UPDATED */}
-
+    <div className="app-wrapper">
       {!hideLayout && (
         <Navbar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
       )}
 
-      <div className="main-content">   {/* UPDATED */}
+      <div className="main-content">
         <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/login" element={<Login setCurrentUserEmail={setCurrentUserEmail} />} />
@@ -96,7 +108,7 @@ function AppWrapper() {
           <Route path="/items" element={<Items searchTerm={searchTerm} />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/adminorders" element={<AdminOrders />} />
-          <Route path="/myorders" element={<MyOrders socket={socket} currentUserEmail={currentUserEmail} />} />
+          <Route path="/myorders" element={<MyOrders socket={socketRef.current} currentUserEmail={currentUserEmail} />} />
         </Routes>
       </div>
 
