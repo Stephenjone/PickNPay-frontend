@@ -276,11 +276,11 @@ const Cart = () => {
                     </p>
 
                     <div className="quantity-controls">
-                      <button onClick={() => updateQuantity(_id, quantity - 1)}>
+                      <button style={{backgroundColor:'#4BB543'}} onClick={() => updateQuantity(_id, quantity - 1)}>
                         -
                       </button>
                       <span>{quantity}</span>
-                      <button onClick={() => updateQuantity(_id, quantity + 1)}>
+                      <button style={{ backgroundColor: "#e74c3c" }} onClick={() => updateQuantity(_id, quantity + 1)}>
                         +
                       </button>
                     </div>
